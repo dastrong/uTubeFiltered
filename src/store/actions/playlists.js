@@ -6,7 +6,7 @@ import {
 	DELETE_PLAYLIST,
 } from "../actionTypes";
 import { fetchURL, createURLstr, fetcher } from "../../util/helpers";
-import { getPlaylistItems } from "./playlistItems";
+import { getPlaylistItems, updatePlaylistItems } from "./playlistItems";
 
 const halfURL = fetchURL("playlists");
 
@@ -61,6 +61,31 @@ export function createPlaylist(token, snippet) {
 			const playlist = await resp.json();
 			if (!resp.ok) throw playlist;
 			dispatch(handleCreate(playlist));
+			console.log(playlist);
+			const tags = playlist.snippet.tags;
+			const channels = tags[0].startsWith("channel:")
+				? tags[0].slice(8).split("&")
+				: console.log("Incorrect Channel Format");
+			const q = tags[1].startsWith("query:")
+				? tags[1].slice(6)
+				: console.log("Incorrect Query Format");
+			const lastDate = tags[2].startsWith("lastUpdate:")
+				? Number(tags[2].slice(11))
+				: console.log("Incorrect Date Format");
+			console.log(tags, channels, q, lastDate);
+
+			channels.map(channel =>
+				dispatch(
+					updatePlaylistItems(token, {
+						channelId: channel,
+						q,
+						// publishedAfter
+						publishedBefore: new Date(lastDate).toISOString(),
+						maxResults: 50,
+						type: "video",
+					})
+				)
+			);
 			dispatch(handleMessage(false, "Do you want to make another playlist?"));
 		} catch (err) {
 			dispatch(handleMessage(true, err.error.message || err));
@@ -83,8 +108,3 @@ export function deletePlaylist(token, id) {
 		}
 	};
 }
-
-// var str = 'channel:UCagHkTCCSbohFMJln7JYqMQ,UCzQUP1qoWDoEbmsQxvdjxgQ'
-// str.slice(8).split(',')
-// ["UCagHkTCCSbohFMJln7JYqMQ", "UCzQUP1qoWDoEbmsQxvdjxgQ"]
-// str.startsWith('channel:') ? str.slice(8).split(',') : 'Incorrect String'
