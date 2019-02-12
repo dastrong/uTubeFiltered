@@ -75,7 +75,7 @@ class DialogInner extends Component {
 			"channel:"
 		);
 		const tagQuery = `query:${query}`;
-		const lastUpdate = `lastUpdate:${new Date().toISOString()}`;
+		const lastUpdate = `lastUpdate:${Date.now()}`;
 		const tags = [tagChannels, tagQuery, lastUpdate];
 		createPlaylist(token, { title, description, tags });
 	};
