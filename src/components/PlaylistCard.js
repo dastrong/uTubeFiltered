@@ -11,11 +11,12 @@ import PlayIcon from "@material-ui/icons/PlayArrow";
 import IconButton from "@material-ui/core/IconButton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
+import { CircularProgress } from "@material-ui/core";
 
 const styles = {
 	card: {
 		boxShadow: "0 0 8px #3f51b5",
-		margin: 10,
+		margin: "10px 0",
 	},
 	details: {
 		width: "100%",
@@ -51,22 +52,37 @@ const styles = {
 		height: 22,
 		width: 22,
 	},
+	updating: {
+		position: "absolute",
+	},
 };
 
 // used to show the countdown time or text if complete
 const CountdownText = ({ hours, minutes, seconds, completed }) => (
 	<Typography variant="caption">
-		Next Available Update:
+		Update
 		{completed
-			? " Now!"
-			: ` ${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`}
+			? " now!"
+			: ` in ${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`}
 	</Typography>
 );
 
 class PlaylistCard extends Component {
-	state = { isUpdateAvailable: false };
+	state = {
+		isUpdateAvailable: this.props.isUpdateAvailable,
+	};
 
+	// triggered when a timer hits zero
 	handleTimerCompletion = () => this.setState({ isUpdateAvailable: true });
+
+	// stops rerendering every cards during
+	// refreshing one cards playlistItems
+	shouldComponentUpdate(nextProps) {
+		return (
+			this.props.fetchingItems !== nextProps.fetchingItems ||
+			this.props.thumbnail !== nextProps.thumbnail
+		);
+	}
 
 	render() {
 		const {
@@ -74,11 +90,9 @@ class PlaylistCard extends Component {
 			title,
 			thumbnail,
 			date,
-			id,
-			// handlePlay,
+			fetchingItems,
 			handleRefresh,
 			handleDelete,
-			token,
 		} = this.props;
 		return (
 			<Grid item xl={2} lg={3} md={4} sm={6} xs={12}>
@@ -92,17 +106,17 @@ class PlaylistCard extends Component {
 								<IconButton
 									aria-label="Refresh"
 									disabled={!this.state.isUpdateAvailable}
-									onClick={() => handleRefresh(token, id)}
+									onClick={handleRefresh}
 								>
 									<RefreshIcon className={classes.otherIcons} />
+									{fetchingItems && (
+										<CircularProgress className={classes.updating} />
+									)}
 								</IconButton>
 								<IconButton aria-label="Play">
 									<PlayIcon className={classes.playIcon} />
 								</IconButton>
-								<IconButton
-									aria-label="Delete"
-									onClick={() => handleDelete(token, id)}
-								>
+								<IconButton aria-label="Delete" onClick={handleDelete}>
 									<DeleteIcon className={classes.otherIcons} />
 								</IconButton>
 							</div>
@@ -130,14 +144,14 @@ class PlaylistCard extends Component {
 }
 
 PlaylistCard.propTypes = {
+	classes: PropTypes.object.isRequired,
 	title: PropTypes.string.isRequired,
 	thumbnail: PropTypes.string.isRequired,
-	id: PropTypes.string.isRequired,
-	token: PropTypes.string.isRequired,
-	classes: PropTypes.object.isRequired,
+	date: PropTypes.number.isRequired,
+	fetchingItems: PropTypes.bool.isRequired,
+	isUpdateAvailable: PropTypes.bool.isRequired,
 	handleDelete: PropTypes.func.isRequired,
 	handleRefresh: PropTypes.func.isRequired,
-	// handlePlay: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(PlaylistCard);

@@ -2,46 +2,49 @@ import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { deletePlaylist } from "../store/actions/playlists";
-import { getPlaylistItems } from "../store/actions/playlistItems";
+import { updatePlaylistItems } from "../store/actions/playlistItems";
 import PlaylistCard from "../components/PlaylistCard";
 
-const Playlists = ({ playlists, ...props }) =>
-  playlists.map(({ snippet, id }) => (
-    <PlaylistCard
-      key={id}
-      id={id}
-      title={snippet.title}
-      thumbnail={snippet.thumbnails.default.url}
-      date={Number(snippet.tags[2].slice(11)) + 86400000}
-      // date={Date.now() + 2000}
-      {...props}
-    />
-  ));
+const Playlists = ({ playlists, token, handleDelete, handleRefresh }) => {
+	const dateNow = Date.now();
+	return playlists.map(playlist => {
+		const dateUpdate = playlist.tags.lastDate + 86400000;
+		return (
+			<PlaylistCard
+				key={playlist.id}
+				date={dateUpdate}
+				isUpdateAvailable={dateNow > dateUpdate}
+				handleRefresh={handleRefresh.bind(
+					this,
+					token,
+					playlist.id,
+					playlist.tags
+				)}
+				handleDelete={handleDelete.bind(this, token, playlist.id)}
+				{...playlist}
+			/>
+		);
+	});
+};
 
 Playlists.propTypes = {
-  playlists: PropTypes.array.isRequired,
-  token: PropTypes.string.isRequired,
-  handleDelete: PropTypes.func.isRequired,
-  handleRefresh: PropTypes.func.isRequired
-  // handlePlay: PropTypes.func.isRequired,
+	playlists: PropTypes.array.isRequired,
+	token: PropTypes.string.isRequired,
+	handleDelete: PropTypes.func.isRequired,
+	handleRefresh: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
-  playlists: state.playlists.playlists,
-  token: state.currentUser.user.tokenAccess
+	playlists: state.playlists.playlists,
+	token: state.currentUser.user.tokenAccess,
 });
 
 const mapDispatchtoProps = {
-  handleDelete: deletePlaylist,
-  handleRefresh: getPlaylistItems
-  // - get the id of the targeted playlist
-  // - find that playlist in our redux state
-  // - set that playlist data as player data for our player component
-  // - change the tab to the player tab for viewing
-  // handlePlay:
+	handleDelete: deletePlaylist,
+	handleRefresh: updatePlaylistItems,
 };
 
 export default connect(
-  mapStateToProps,
-  mapDispatchtoProps
+	mapStateToProps,
+	mapDispatchtoProps
 )(Playlists);
