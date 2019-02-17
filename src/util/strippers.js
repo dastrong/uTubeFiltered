@@ -12,7 +12,7 @@ export const stripPlaylist = playlist => ({
 // response into a simple readable object
 export const stripPlaylistItems = items =>
 	items.map(item => ({
-		videoId: item.id.videoId,
+		videoId: item.snippet.resourceId.videoId,
 		videoDate: item.snippet.publishedAt,
 		videoTitle: item.snippet.title,
 		channelId: item.snippet.channelId,

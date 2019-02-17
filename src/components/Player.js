@@ -1,8 +1,10 @@
 import React from "react";
 import YouTube from "react-youtube";
+import Grid from "@material-ui/core/Grid";
+
 // import { connect } from "react-redux";
 
-function _onFinish() {
+function _onFinish(e) {
 	console.log("Video is Finished; Remove from Playlist");
 }
 
@@ -17,27 +19,27 @@ function _onFinish() {
 // maybe I should create a Saved Videos playlist when user clicks this button
 // if user has already done this and has a saved videos playlist, skip the creation part
 // show the playing videos statistic and info
-//
+
 const Player = props => (
-	<YouTube
-		opts={{
-			width: "100%",
-			maxWidth: "700px",
-			playerVars: {
-				rel: 0,
-				listType: "playlist",
-				list: "PL81JazZ9FQVqG3ihjU7KUdMHjTjF_nu-N",
-			},
-		}}
-		// onReady={this.consoleIt}
-		// onPlay={this.consoleIt}
-		// onPause={this.consoleIt}
-		onEnd={_onFinish}
-		// onError={this.consoleIt}
-		// onStateChange={this.consoleIt}
-		// onPlaybackRateChange={this.consoleIt}
-		// onPlaybackQualityChange={this.consoleIt}
-	/>
+	<Grid item xs={12} sm={10} md={6}>
+		<YouTube
+			opts={{
+				width: "100%",
+				maxWidth: "700px",
+				playerVars: {
+					autoplay: 1,
+					iv_load_policy: 3,
+					rel: 0,
+					listType: "playlist",
+					list: "PL81JazZ9FQVqXpP5iZ9enh5ewa4aq_-G3",
+				},
+			}}
+			onEnd={_onFinish}
+			// onStateChange={this.consoleIt}
+			// onPlaybackRateChange={this.consoleIt}
+			// onPlaybackQualityChange={this.consoleIt}
+		/>
+	</Grid>
 );
 
 export default Player;

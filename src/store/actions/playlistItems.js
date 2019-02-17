@@ -28,12 +28,12 @@ export function getPlaylistItems(token, playlistId) {
 			});
 			const resp = await fetcher("GET", fullURL, token);
 			const playlistItems = await resp.json();
-			if (!resp.ok) throw playlistItems;
+			if (!resp.ok) throw playlistItems.error.message;
 			const items = stripPlaylistItems(playlistItems.items);
 			dispatch(handlePlaylistItems(playlistId, items));
 		} catch (err) {
-			dispatch(handleMessage(true, err.error.message || err));
 			console.log(err);
+			dispatch(handleMessage(true, err));
 		}
 	};
 }
