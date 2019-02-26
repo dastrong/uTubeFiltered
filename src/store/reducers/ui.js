@@ -2,7 +2,8 @@ import {
   CHANGE_TAB,
   CLIENT_LOADED,
   PLAYLIST_LOADER,
-  PLAYLIST_MESSAGE
+  PLAYLIST_MESSAGE,
+  CHOOSING_PLAYLIST
 } from "../actionTypes";
 
 const initialState = {
@@ -11,12 +12,13 @@ const initialState = {
   playlists: {
     isLoading: true,
     isError: null,
-    message: null
+    message: null,
+    activePlaylistId: null
   }
 };
 
 export default (state = initialState, action) => {
-  const { type, value, isLoading, isError, message } = action;
+  const { type, value, isLoading, isError, message, activePlaylistId } = action;
   switch (type) {
     case CHANGE_TAB:
       return {
@@ -37,6 +39,11 @@ export default (state = initialState, action) => {
       return {
         ...state,
         playlists: { ...state.playlists, isError, message }
+      };
+    case CHOOSING_PLAYLIST:
+      return {
+        ...state,
+        playlists: { ...state.playlists, activePlaylistId }
       };
     default:
       return state;

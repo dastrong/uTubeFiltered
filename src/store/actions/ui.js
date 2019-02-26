@@ -2,7 +2,8 @@ import {
   CHANGE_TAB,
   CLIENT_LOADED,
   PLAYLIST_LOADER,
-  PLAYLIST_MESSAGE
+  PLAYLIST_MESSAGE,
+  CHOOSING_PLAYLIST
 } from "../actionTypes";
 
 export const handleClient = () => ({
@@ -24,4 +25,9 @@ export const handlePlaylistMsg = (isError = null, message = null) => ({
   isLoading: false,
   isError,
   message
+});
+
+export const choosingPlaylist = activePlaylistId => ({
+  type: CHOOSING_PLAYLIST,
+  activePlaylistId
 });
