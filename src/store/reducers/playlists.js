@@ -28,9 +28,7 @@ export default (state = [], action) => {
       );
     case GET_PLAYLIST:
       return state.map(playlist =>
-        playlist.id === updatedPlaylist.id
-          ? { ...updatedPlaylist, fetchingItems: true }
-          : playlist
+        playlist.id === updatedPlaylist.id ? updatedPlaylist : playlist
       );
     default:
       return state;
