@@ -40,7 +40,7 @@ PlaylistsTab.propTypes = {
 };
 
 const mapStateToProps = state => ({
-  isPlaylistFound: Boolean(state.playlists.playlists.length)
+  isPlaylistFound: Boolean(state.playlists.length)
 });
 
 export default compose(
