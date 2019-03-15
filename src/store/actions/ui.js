@@ -3,7 +3,8 @@ import {
   CLIENT_LOADED,
   PLAYLIST_LOADER,
   PLAYLIST_MESSAGE,
-  CHOOSING_PLAYLIST
+  PLAYLIST_UPDATE_BADGE,
+  PLAYLIST_UPDATE_BADGE_PLUS
 } from "../actionTypes";
 
 export const handleClient = () => ({
@@ -27,7 +28,11 @@ export const handlePlaylistMsg = (isError = null, message = null) => ({
   message
 });
 
-export const choosingPlaylist = activePlaylistId => ({
-  type: CHOOSING_PLAYLIST,
-  activePlaylistId
+export const handlePlaylistsUpdateBadge = value => ({
+  type: PLAYLIST_UPDATE_BADGE,
+  value
+});
+
+export const plusPlaylistsUpdateBadge = () => ({
+  type: PLAYLIST_UPDATE_BADGE_PLUS
 });

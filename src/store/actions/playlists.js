@@ -1,13 +1,16 @@
 import {
   GET_PLAYLISTS,
   CREATE_PLAYLIST,
-  DELETE_PLAYLIST,
-  GET_PLAYLIST
+  DELETE_PLAYLIST
 } from "../actionTypes";
-import { fetchURL, createURLstr, fetcher } from "../../util/helpers";
-import { getPlaylistItems, updatePlaylistItems } from "./playlistItems";
+import { fetchURL, apiRequest } from "../../util/helpers";
 import { stripPlaylist } from "../../util/strippers";
-import { handlePlaylistLoad, handlePlaylistMsg } from "./ui";
+import { getPlaylistItems, updatePlaylistItems } from "./playlistItems";
+import {
+  handlePlaylistLoad,
+  handlePlaylistMsg,
+  handlePlaylistsUpdateBadge
+} from "./ui";
 
 const halfURL = fetchURL("playlists");
 
@@ -26,25 +29,30 @@ export const handleDelete = id => ({
   id
 });
 
-export const handlePlaylist = updatedPlaylist => ({
-  type: GET_PLAYLIST,
-  updatedPlaylist
-});
-
 // THUNKS
 export function getPlaylists(token) {
   return async dispatch => {
     try {
-      const fullURL = createURLstr(halfURL);
-      const resp = await fetcher("GET", fullURL, token);
-      const playlists = await resp.json();
-      if (!resp.ok) throw playlists.error.message;
-      const allPlaylists = playlists.items.map(item => stripPlaylist(item));
-      dispatch(handlePlaylists(allPlaylists));
-      dispatch(handlePlaylistLoad(false));
-      allPlaylists.map(playlist =>
-        dispatch(getPlaylistItems(token, playlist.id))
+      // https://developers.google.com/youtube/v3/docs/playlists/list#parameters
+      const params = { mine: true, maxResults: "50", part: "snippet" };
+      // returns an items array or throws an error
+      const { items } = await apiRequest("GET", halfURL, token, params);
+      // strips our playlist results down
+      const playlists = items.map(item => stripPlaylist(item));
+      // send results to store
+      dispatch(handlePlaylists(playlists));
+      // get each playlists item
+      playlists.map(playlist => dispatch(getPlaylistItems(token, playlist.id)));
+      // update the playlist update ui badge
+      const dateNow = Date.now();
+      const updatesAvailable = playlists.reduce(
+        (acc, cVal) =>
+          dateNow > cVal.tags.lastDate + 86400000 ? acc + 1 : acc,
+        0
       );
+      dispatch(handlePlaylistsUpdateBadge(updatesAvailable));
+      // flip the ui flag variable
+      dispatch(handlePlaylistLoad(false));
     } catch (err) {
       console.log(err);
       dispatch(handlePlaylistMsg(true, err));
@@ -55,18 +63,17 @@ export function getPlaylists(token) {
 export function createPlaylist(token, snippet) {
   return async dispatch => {
     try {
-      const fullURL = createURLstr(halfURL);
+      // https://developers.google.com/youtube/v3/docs/playlists/insert#parameters
+      const params = { part: "snippet" };
+      // https://developers.google.com/youtube/v3/docs/playlists/insert#request-body
       const body = JSON.stringify({ snippet });
-      const resp = await fetcher("POST", fullURL, token, body);
-      const playlist = await resp.json();
-      if (!resp.ok) throw playlist.error.message;
-      const newPlaylist = stripPlaylist(playlist);
+      const resp = await apiRequest("POST", halfURL, token, params, body);
+      const newPlaylist = stripPlaylist(resp);
       dispatch(handleCreate(newPlaylist));
-      dispatch(handlePlaylistLoad(false));
       dispatch(updatePlaylistItems(token, newPlaylist.id, newPlaylist.tags));
-      dispatch(
-        handlePlaylistMsg(false, "Do you want to make another playlist?")
-      );
+      const successMsg = "Do you want to make another playlist?";
+      dispatch(handlePlaylistMsg(false, successMsg));
+      dispatch(handlePlaylistLoad(false));
     } catch (err) {
       console.log(err);
       dispatch(handlePlaylistMsg(true, err));
@@ -77,27 +84,9 @@ export function createPlaylist(token, snippet) {
 export function deletePlaylist(token, id) {
   return async dispatch => {
     try {
-      const fullURL = createURLstr(halfURL, { id });
-      const resp = await fetcher("DELETE", fullURL, token);
-      if (!resp.ok) throw Error("Something went wrong");
+      // https://developers.google.com/youtube/v3/docs/playlists/delete#parameters
+      await apiRequest("DELETE", halfURL, token, { id });
       dispatch(handleDelete(id));
-    } catch (err) {
-      console.log(err);
-      dispatch(handlePlaylistMsg(true, err));
-    }
-  };
-}
-
-export function getPlaylist(token, id) {
-  return async dispatch => {
-    try {
-      const fullURL = createURLstr(halfURL, { id, part: "snippet" });
-      const resp = await fetcher("GET", fullURL, token);
-      const playlist = await resp.json();
-      if (!resp.ok) throw playlist.error.message;
-      const updatedPlaylist = stripPlaylist(playlist.items[0]);
-      dispatch(handlePlaylist(updatedPlaylist));
-      dispatch(getPlaylistItems(token, updatedPlaylist.id));
     } catch (err) {
       console.log(err);
       dispatch(handlePlaylistMsg(true, err));

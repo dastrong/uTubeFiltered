@@ -3,7 +3,8 @@ import {
   CLIENT_LOADED,
   PLAYLIST_LOADER,
   PLAYLIST_MESSAGE,
-  CHOOSING_PLAYLIST
+  PLAYLIST_UPDATE_BADGE,
+  PLAYLIST_UPDATE_BADGE_PLUS
 } from "../actionTypes";
 
 const initialState = {
@@ -13,12 +14,12 @@ const initialState = {
     isLoading: true,
     isError: null,
     message: null,
-    activePlaylistId: null
+    updateAvailCount: 0
   }
 };
 
 export default (state = initialState, action) => {
-  const { type, value, isLoading, isError, message, activePlaylistId } = action;
+  const { type, value, isLoading, isError, message } = action;
   switch (type) {
     case CHANGE_TAB:
       return {
@@ -40,10 +41,18 @@ export default (state = initialState, action) => {
         ...state,
         playlists: { ...state.playlists, isError, message }
       };
-    case CHOOSING_PLAYLIST:
+    case PLAYLIST_UPDATE_BADGE:
       return {
         ...state,
-        playlists: { ...state.playlists, activePlaylistId }
+        playlists: { ...state.playlists, updateAvailCount: value }
+      };
+    case PLAYLIST_UPDATE_BADGE_PLUS:
+      return {
+        ...state,
+        playlists: {
+          ...state.playlists,
+          updateAvailCount: state.playlists.updateAvailCount + 1
+        }
       };
     default:
       return state;

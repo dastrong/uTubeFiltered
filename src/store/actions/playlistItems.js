@@ -1,10 +1,15 @@
-import { GET_PLAYLIST_ITEMS, FETCHING_PLAYLIST_ITEMS } from "../actionTypes";
-import { fetchURL, createURLstr, fetcher } from "../../util/helpers";
-import { getPlaylist } from "./playlists";
-import { stripPlaylistItems } from "../../util/strippers";
+import {
+  GET_PLAYLIST_ITEMS,
+  FETCHING_PLAYLIST_ITEMS,
+  DELETE_PLAYLIST_ITEM
+} from "../actionTypes";
+import { fetchURL, apiRequest } from "../../util/helpers";
+import { stripPlaylistItem } from "../../util/strippers";
 import { handlePlaylistMsg } from "./ui";
-const halfURL = fetchURL("playlistItems");
+
+const halfItemsURL = fetchURL("playlistItems");
 const halfSearchURL = fetchURL("search");
+const halfVideosURL = fetchURL("videos");
 
 export const fetchingPlaylistItems = id => ({
   type: FETCHING_PLAYLIST_ITEMS,
@@ -17,20 +22,52 @@ export const handlePlaylistItems = (id, items) => ({
   id
 });
 
+export const handleItemDelete = (vidId, playlistId) => ({
+  type: DELETE_PLAYLIST_ITEM,
+  vidId,
+  playlistId
+});
+
 // THUNKS
 export function getPlaylistItems(token, playlistId) {
   return async dispatch => {
     try {
-      const fullURL = createURLstr(halfURL, {
+      // https://developers.google.com/youtube/v3/docs/playlistItems/list#parameters
+      const itemParams = {
         playlistId,
         part: "snippet",
         maxResults: 50
+      };
+      // get all items in user playlists
+      const playlistItems = await apiRequest(
+        "GET",
+        halfItemsURL,
+        token,
+        itemParams
+      );
+      // save the id(to delete) with it's videoId
+      const listItemIds = playlistItems.items.map(item => ({
+        id: item.id,
+        videoId: item.snippet.resourceId.videoId
+      }));
+      // https://developers.google.com/youtube/v3/docs/videos/list#parameters
+      const videoParams = {
+        id: listItemIds.map(item => item.videoId).join(),
+        part: "snippet,statistics"
+      };
+      // get extra details about each video
+      const extraItemDetails = await apiRequest(
+        "GET",
+        halfVideosURL,
+        token,
+        videoParams
+      );
+      // array of video objects that are filtered down
+      const strippedItems = extraItemDetails.items.map(item => {
+        const id = listItemIds.find(({ videoId }) => item.id === videoId).id;
+        return stripPlaylistItem(item, id);
       });
-      const resp = await fetcher("GET", fullURL, token);
-      const playlistItems = await resp.json();
-      if (!resp.ok) throw playlistItems.error.message;
-      const items = stripPlaylistItems(playlistItems.items);
-      dispatch(handlePlaylistItems(playlistId, items));
+      dispatch(handlePlaylistItems(playlistId, strippedItems));
     } catch (err) {
       console.log(err);
       dispatch(handlePlaylistMsg(true, err));
@@ -41,8 +78,11 @@ export function getPlaylistItems(token, playlistId) {
 export function updatePlaylistItems(token, playlistId, tags) {
   return async dispatch => {
     try {
+      // update ui to show we're processing the update
       dispatch(fetchingPlaylistItems(playlistId));
+      // everything we need is kept in the playlist tags
       const { channels, q, lastDate } = tags;
+      // search for video with the following params
       const params = {
         part: "id",
         // publishedAfter
@@ -51,25 +91,35 @@ export function updatePlaylistItems(token, playlistId, tags) {
         type: "video",
         q
       };
-      const respArr = await Promise.all(
+      // https://developers.google.com/youtube/v3/docs/search/list#parameters
+      // returns results in an array named items
+      const [{ items }] = await Promise.all(
         channels.map(async channelId => {
-          const fullURL = createURLstr(halfSearchURL, { channelId, ...params });
-          const resp = await fetcher("GET", fullURL, token);
-          const item = await resp.json();
-          if (!resp.ok) throw item;
-          return item;
+          return await apiRequest("GET", halfSearchURL, token, {
+            channelId,
+            ...params
+          });
         })
       );
-      // combine all returned videoIds into 1 array
-      const videoIds = respArr
-        .map(resp => resp.items.map(item => item.id.videoId))
-        .reduce((acc, cVal) => acc.concat(cVal));
-      // throws if an error happens
-      // doesn't return anything
+      // separates the videoIds into their own array
+      const videoIds = items.map(item => item.id.videoId);
+      // will throw if an error happens
       await insertPlaylistItems(token, playlistId, videoIds);
-      // need to get the updated playlist first
-      // so thumbnails are updated
-      dispatch(getPlaylist(token, playlistId));
+      // updates playlist so thumbnail updates
+      dispatch(getPlaylistItems(token, playlistId));
+    } catch (err) {
+      console.log(err);
+      dispatch(handlePlaylistMsg(true, err));
+    }
+  };
+}
+
+export function deletePlaylistItem(token, playlistItemId, videoId, playlistId) {
+  return async dispatch => {
+    try {
+      // https://developers.google.com/youtube/v3/docs/playlistItems/delete#parameters
+      await apiRequest("DELETE", halfItemsURL, token, { id: playlistItemId });
+      dispatch(handleItemDelete(videoId, playlistId));
     } catch (err) {
       console.log(err);
       dispatch(handlePlaylistMsg(true, err));
@@ -78,19 +128,16 @@ export function updatePlaylistItems(token, playlistId, tags) {
 }
 
 // used to combat this issue: https://issuetracker.google.com/issues/35173743
-// TLDR need to process request sequentially for 100% accuracy
+// TLDR need to process request sequentially for 100% POST accuracy
 async function insertPlaylistItems(token, playlistId, videoIds) {
   for (const videoId of videoIds) {
-    const snippet = {
-      playlistId,
-      resourceId: { videoId, kind: "youtube#video" }
-    };
-    const fullURL = createURLstr(halfURL);
-    const body = JSON.stringify({ snippet });
-    const resp = await fetcher("POST", fullURL, token, body);
-    const result = await resp.json();
-    if (!resp.ok) throw result.error.message;
-    // don't need to return anything
-    // because getting all playlist items is only worth 1 quota
+    const resourceId = { videoId, kind: "youtube#video" };
+    const body = JSON.stringify({ snippet: { playlistId, resourceId } });
+    // https://developers.google.com/youtube/v3/docs/playlistItems/list#parameters
+    const params = { part: "snippet" };
+    await apiRequest("POST", halfItemsURL, token, params, body);
+    // throws an error if unsuccessful, but we won't
+    // return anything here because getting all playlist
+    // items is only worth 1 quota
   }
 }
