@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import Countdown, { zeroPad } from "react-countdown-now";
 import { withStyles } from "@material-ui/core/styles";
@@ -11,12 +11,14 @@ import PlayIcon from "@material-ui/icons/PlayArrow";
 import IconButton from "@material-ui/core/IconButton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
-import { CircularProgress } from "@material-ui/core";
+import CircularProgress from "@material-ui/core/CircularProgress";
+import ToolTip from "./ToolTip";
+import { plusPlaylistsUpdateBadge } from "../store/actions/ui";
 
 const styles = {
   card: {
     boxShadow: "0 0 8px #3f51b5",
-    margin: "10px 0"
+    margin: 10
   },
   details: {
     width: "100%",
@@ -67,46 +69,42 @@ const CountdownText = ({ hours, minutes, seconds, completed }) => (
   </Typography>
 );
 
-class PlaylistCard extends Component {
-  state = {
-    isUpdateAvailable: this.props.isUpdateAvailable
-  };
+function PlaylistCard({
+  classes,
+  title,
+  date,
+  fetchingItems,
+  isUpdateAvailable,
+  handleRefresh,
+  handleDelete,
+  handlePlay,
+  videoCount,
+  firstItem
+}) {
+  const [isUpdateAvail, toggler] = React.useState(isUpdateAvailable);
 
-  // triggered when a timer hits zero
-  handleTimerCompletion = () => this.setState({ isUpdateAvailable: true });
-
-  // stops rerendering every cards during
-  // refreshing one cards playlistItems
-  shouldComponentUpdate(nextProps) {
-    return (
-      this.props.fetchingItems !== nextProps.fetchingItems ||
-      this.props.thumbnail !== nextProps.thumbnail
-    );
+  function toggleAvailability() {
+    // update this cards ui
+    toggler(true);
+    // updates the playlist ui badge count
+    plusPlaylistsUpdateBadge();
   }
 
-  render() {
-    const {
-      classes,
-      title,
-      thumbnail,
-      date,
-      fetchingItems,
-      handleRefresh,
-      handleDelete,
-      handlePlay
-    } = this.props;
-    return (
-      <Grid item xl={2} lg={3} md={4} sm={6} xs={12}>
-        <Card className={classes.card}>
-          <CardContent className={classes.content}>
-            <Typography variant="h5">{title}</Typography>
-          </CardContent>
-          <div className={classes.details}>
-            <div className={classes.info}>
-              <div className={classes.controls}>
+  return (
+    <Grid item xs={12} sm={9} md={5} lg={4}>
+      <Card className={classes.card}>
+        <CardContent className={classes.content}>
+          <Typography variant="h5">{title}</Typography>
+        </CardContent>
+        <div className={classes.details}>
+          <div className={classes.info}>
+            <div className={classes.controls}>
+              <ToolTip
+                title={isUpdateAvail ? "" : "Do some work then come back"}
+              >
                 <IconButton
                   aria-label="Refresh"
-                  disabled={!this.state.isUpdateAvailable}
+                  disabled={!isUpdateAvail}
                   onClick={handleRefresh}
                 >
                   <RefreshIcon className={classes.otherIcons} />
@@ -114,46 +112,57 @@ class PlaylistCard extends Component {
                     <CircularProgress className={classes.updating} />
                   )}
                 </IconButton>
-                <IconButton aria-label="Play" onClick={handlePlay}>
+              </ToolTip>
+              <ToolTip title={videoCount ? "" : "No videos found in here"}>
+                <IconButton
+                  aria-label="Play"
+                  disabled={!videoCount}
+                  onClick={handlePlay}
+                >
                   <PlayIcon className={classes.playIcon} />
                 </IconButton>
-                <IconButton aria-label="Delete" onClick={handleDelete}>
-                  <DeleteIcon className={classes.otherIcons} />
-                </IconButton>
-              </div>
-              <CardContent className={classes.date}>
-                <Countdown
-                  date={date}
-                  zeroPadTime={0}
-                  renderer={CountdownText}
-                  onComplete={this.handleTimerCompletion}
-                />
-              </CardContent>
+              </ToolTip>
+              <IconButton aria-label="Delete" onClick={handleDelete}>
+                <DeleteIcon className={classes.otherIcons} />
+              </IconButton>
             </div>
-            <CardMedia
-              component="img"
-              alt="playlist thumbnail"
-              className={classes.cover}
-              image={thumbnail}
-              title={title}
-            />
+            <CardContent className={classes.date}>
+              <Countdown
+                date={date}
+                zeroPadTime={0}
+                renderer={CountdownText}
+                onComplete={() => toggleAvailability()}
+              />
+            </CardContent>
           </div>
-        </Card>
-      </Grid>
-    );
-  }
+          <CardMedia
+            component="img"
+            alt="playlist thumbnail"
+            className={classes.cover}
+            title={title}
+            image={
+              videoCount
+                ? firstItem.thumbnail
+                : "https://s.ytimg.com/yts/img/no_thumbnail-vfl4t3-4R.jpg"
+            }
+          />
+        </div>
+      </Card>
+    </Grid>
+  );
 }
 
 PlaylistCard.propTypes = {
   classes: PropTypes.object.isRequired,
   title: PropTypes.string.isRequired,
-  thumbnail: PropTypes.string.isRequired,
   date: PropTypes.number.isRequired,
   fetchingItems: PropTypes.bool.isRequired,
   isUpdateAvailable: PropTypes.bool.isRequired,
   handleDelete: PropTypes.func.isRequired,
   handleRefresh: PropTypes.func.isRequired,
-  handlePlay: PropTypes.func.isRequired
+  handlePlay: PropTypes.func.isRequired,
+  videoCount: PropTypes.number.isRequired,
+  firstItem: PropTypes.object.isRequired
 };
 
 export default withStyles(styles)(PlaylistCard);

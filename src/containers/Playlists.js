@@ -3,37 +3,35 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { deletePlaylist } from "../store/actions/playlists";
 import { updatePlaylistItems } from "../store/actions/playlistItems";
+import { handleTabChange } from "../store/actions/ui";
+import { setPlaylistId, setVideoId } from "../store/actions/player";
 import PlaylistCard from "../components/PlaylistCard";
-import { handleTabChange, choosingPlaylist } from "../store/actions/ui";
 
 class Playlists extends Component {
   handlePlay = id => () => {
-    // go to player tab
+    const { items } = this.props.playlists.find(playlist => playlist.id === id);
+    // go to player tab and set the playlistId and first videoId in the store
     this.props.handleTabChange(2);
-    // sets the playlistId in the store
-    // which will be used in the player tab
-    this.props.choosingPlaylist(id);
+    this.props.setPlaylistId(id);
+    this.props.setVideoId(items[0].videoId);
   };
 
   render() {
     const { playlists, token, handleDelete, handleRefresh } = this.props;
     const dateNow = Date.now();
-    return playlists.map(playlist => {
-      const dateUpdate = playlist.tags.lastDate + 86400000;
+    return playlists.map(({ tags, id, items, ...rest }) => {
+      const dateUpdate = tags.lastDate + 86400000;
       return (
         <PlaylistCard
-          key={playlist.id}
+          key={id}
           date={dateUpdate}
           isUpdateAvailable={dateNow > dateUpdate}
-          handleRefresh={handleRefresh.bind(
-            this,
-            token,
-            playlist.id,
-            playlist.tags
-          )}
-          handleDelete={handleDelete.bind(this, token, playlist.id)}
-          handlePlay={this.handlePlay(playlist.id)}
-          {...playlist}
+          videoCount={items.length}
+          handleRefresh={handleRefresh.bind(this, token, id, tags)}
+          handleDelete={handleDelete.bind(this, token, id)}
+          handlePlay={this.handlePlay(id)}
+          firstItem={items[0] || {}}
+          {...rest}
         />
       );
     });
@@ -46,7 +44,8 @@ Playlists.propTypes = {
   handleDelete: PropTypes.func.isRequired,
   handleRefresh: PropTypes.func.isRequired,
   handleTabChange: PropTypes.func.isRequired,
-  choosingPlaylist: PropTypes.func.isRequired
+  setPlaylistId: PropTypes.func.isRequired,
+  setVideoId: PropTypes.func.isRequired
 };
 
 const mapStateToProps = state => ({
@@ -58,7 +57,8 @@ const mapDispatchtoProps = {
   handleDelete: deletePlaylist,
   handleRefresh: updatePlaylistItems,
   handleTabChange,
-  choosingPlaylist
+  setPlaylistId,
+  setVideoId
 };
 
 export default connect(

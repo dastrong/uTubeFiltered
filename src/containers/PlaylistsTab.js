@@ -28,7 +28,7 @@ const NoPlaylistsFound = ({ style }) => (
 
 // exported component
 const PlaylistsTab = ({ classes, isPlaylistFound }) => (
-  <Grid container className={classes.container}>
+  <Grid container justify="center" className={classes.container}>
     {isPlaylistFound ? <Playlists /> : <NoPlaylistsFound style={classes.h6} />}
     <DialogHolder />
   </Grid>
