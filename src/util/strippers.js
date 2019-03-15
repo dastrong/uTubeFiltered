@@ -1,29 +1,38 @@
-// used to strip all data from youtube
-// response into a simple readable object
+// strip objects from youtube API
+// responses into simple readable objects
+
+// used to strip playlists
 export const stripPlaylist = playlist => ({
   id: playlist.id,
   title: playlist.snippet.title,
-  thumbnail: playlist.snippet.thumbnails.default.url,
   tags: stripTags(playlist.snippet.tags),
   fetchingItems: false,
   items: []
 });
 
 // used to strip the playlistItems
-// response into a simple readable object
-export const stripPlaylistItems = items =>
-  items.map(item => ({
-    videoId: item.snippet.resourceId.videoId,
-    videoDate: item.snippet.publishedAt,
-    videoTitle: item.snippet.title,
-    channelId: item.snippet.channelId,
-    channelName: item.snippet.channelTitle,
-    thumbnail: item.snippet.thumbnails.default.url,
-    description: item.snippet.description
-  }));
+export const stripPlaylistItem = (item, id) => ({
+  playlistItemId: id,
+  videoId: item.id,
+  videoDate: item.snippet.publishedAt,
+  videoTitle: item.snippet.title,
+  channelId: item.snippet.channelId,
+  channelName: item.snippet.channelTitle,
+  thumbnail: item.snippet.thumbnails.default.url,
+  description: item.snippet.description,
+  viewsCount: item.statistics.viewCount
+});
 
-// converts the tags array from our playlists
-// into readable formats
+// used to strip channel search results
+// when creating new playlist
+export const stripChannelSearch = item => ({
+  label: item.snippet.channelTitle,
+  value: item.snippet.channelId,
+  thumb: item.snippet.thumbnails.default.url
+});
+
+// used to strip and convert the tags
+// array from our playlists
 function stripTags(tags) {
   const channels = tags[0].startsWith("channel:")
     ? tags[0].slice(8).split("&")
