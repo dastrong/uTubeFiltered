@@ -20,13 +20,20 @@ class NavSub extends Component {
   handleChange = (e, value) => this.props.handleTabChange(value);
 
   render() {
-    const { isAuthenticated, tabValue } = this.props;
+    const {
+      isAuthenticated,
+      tabValue,
+      currentVideoId,
+      plUpdAvail
+    } = this.props;
     return (
       <>
         <NavTabs
           value={tabValue}
           handleChange={this.handleChange}
           isAuthenticated={isAuthenticated}
+          currentVideoId={currentVideoId}
+          plUpdAvail={plUpdAvail}
         />
         <NavTabContainers value={tabValue} />
       </>
@@ -40,8 +47,10 @@ NavSub.propTypes = {
 };
 
 const mapStateToProps = state => ({
+  plUpdAvail: state.ui.playlists.updateAvailCount,
   isAuthenticated: state.currentUser.isAuthenticated,
-  tabValue: state.ui.tabValue
+  tabValue: state.ui.tabValue,
+  currentVideoId: state.player.currentVideoId
 });
 
 const mapDispatchToProps = {
