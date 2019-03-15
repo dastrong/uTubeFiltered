@@ -36,33 +36,29 @@ const styles = {
   }
 };
 
-const Player = ({
-  classes,
-  videoId,
-  onFinish,
-  isPlayerReady,
-  togglePlayerReady
-}) => (
-  <Grid item className={classes.compContainer}>
-    <YouTube
-      containerClassName={`${classes.iFrameContainer} ${
-        isPlayerReady ? classes.iFrameIsLoaded : ""
-      }`}
-      videoId={videoId}
-      opts={opts}
-      onEnd={onFinish}
-      onReady={togglePlayerReady}
-    />
-    {!isPlayerReady && <CircularProgress className={classes.spinner} />}
-  </Grid>
-);
+function Player({ classes, videoId, onFinish }) {
+  const [isPlayerReady, toggler] = React.useState(false);
+
+  return (
+    <Grid item className={classes.compContainer}>
+      <YouTube
+        containerClassName={`${classes.iFrameContainer} ${
+          isPlayerReady ? classes.iFrameIsLoaded : ""
+        }`}
+        videoId={videoId}
+        opts={opts}
+        onEnd={onFinish}
+        onReady={() => toggler(true)}
+      />
+      {!isPlayerReady && <CircularProgress className={classes.spinner} />}
+    </Grid>
+  );
+}
 
 Player.propTypes = {
   classes: PropTypes.object.isRequired,
   videoId: PropTypes.string.isRequired,
-  onFinish: PropTypes.func.isRequired,
-  togglePlayerReady: PropTypes.func.isRequired,
-  isPlayerReady: PropTypes.bool.isRequired
+  onFinish: PropTypes.func.isRequired
 };
 
 export default withStyles(styles)(Player);
