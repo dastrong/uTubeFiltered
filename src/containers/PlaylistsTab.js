@@ -8,45 +8,48 @@ import Typography from "@material-ui/core/Typography";
 import Playlists from "../containers/Playlists";
 import DialogHolder from "../components/DialogHolder";
 
-const styles = {
-  container: {
-    padding: 10
-  },
-  h6: {
-    margin: "10px auto",
-    maxWidth: 150,
-    textAlign: "center"
-  }
-};
+const styles = theme => ({
+	container: {
+		padding: "10px 5px",
+		[theme.breakpoints.up("sm")]: {
+			padding: 10,
+		},
+	},
+	h6: {
+		margin: "10px auto",
+		maxWidth: 150,
+		textAlign: "center",
+	},
+});
 
 // simple message component
 const NoPlaylistsFound = ({ style }) => (
-  <Typography className={style} variant="h6">
-    No uTubeFiltered Playlists Found
-  </Typography>
+	<Typography className={style} variant="h6">
+		No uTubeFiltered Playlists Found
+	</Typography>
 );
 
 // exported component
 const PlaylistsTab = ({ classes, isPlaylistFound }) => (
-  <Grid container justify="center" className={classes.container}>
-    {isPlaylistFound ? <Playlists /> : <NoPlaylistsFound style={classes.h6} />}
-    <DialogHolder />
-  </Grid>
+	<Grid container justify="center" className={classes.container}>
+		{isPlaylistFound ? <Playlists /> : <NoPlaylistsFound style={classes.h6} />}
+		<DialogHolder />
+	</Grid>
 );
 
 PlaylistsTab.propTypes = {
-  classes: PropTypes.object.isRequired,
-  isPlaylistFound: PropTypes.bool.isRequired
+	classes: PropTypes.object.isRequired,
+	isPlaylistFound: PropTypes.bool.isRequired,
 };
 
 const mapStateToProps = state => ({
-  isPlaylistFound: Boolean(state.playlists.length)
+	isPlaylistFound: Boolean(state.playlists.length),
 });
 
 export default compose(
-  withStyles(styles),
-  connect(
-    mapStateToProps,
-    null
-  )
+	withStyles(styles),
+	connect(
+		mapStateToProps,
+		null
+	)
 )(PlaylistsTab);

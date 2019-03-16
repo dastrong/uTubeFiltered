@@ -16,10 +16,20 @@ import ToolTip from "./ToolTip";
 import { plusPlaylistsUpdateBadge } from "../store/actions/ui";
 import Badge from "@material-ui/core/Badge";
 
-const styles = {
+const styles = theme => ({
+	item: {
+		minWidth: 300,
+		maxWidth: 450,
+		[theme.breakpoints.up("sm")]: {
+			minWidth: 375,
+		},
+	},
 	card: {
 		boxShadow: "0 0 8px #3f51b5",
-		margin: 10,
+		margin: 5,
+		[theme.breakpoints.up("sm")]: {
+			margin: 10,
+		},
 	},
 	details: {
 		width: "100%",
@@ -36,7 +46,7 @@ const styles = {
 	},
 	info: { width: "100%" },
 	cover: {
-		width: 151,
+		width: 120,
 		height: "auto",
 	},
 	controls: {
@@ -63,7 +73,7 @@ const styles = {
 		padding: "0 0 5px 5px",
 		fontSize: "0.9rem",
 	},
-};
+});
 
 // used to show the countdown time or text if complete
 const CountdownText = ({ hours, minutes, seconds, completed }) => (
@@ -97,7 +107,7 @@ function PlaylistCard({
 	}
 
 	return (
-		<Grid item xs={12} sm={9} md={5} lg={4}>
+		<Grid className={classes.item} item xs={12} sm={6} md={4} lg={3}>
 			<Card className={classes.card}>
 				<CardContent className={classes.content}>
 					<Typography variant="h5">{title}</Typography>
