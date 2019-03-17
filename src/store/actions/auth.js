@@ -1,10 +1,13 @@
-import { SET_CURRENT_USER } from "../actionTypes";
-import { getPlaylists, handlePlaylists } from "./playlists";
+import { SET_CURRENT_USER, LOGOUT_USER } from "../actionTypes";
+import { getPlaylists } from "./playlists";
+import { handleClient } from "./ui";
 
 export const setCurrentUser = user => ({
 	type: SET_CURRENT_USER,
 	user,
 });
+
+export const logoutUser = () => ({ type: LOGOUT_USER });
 
 export function authUser(cb) {
 	return async dispatch => {
@@ -35,8 +38,8 @@ export function unAuthUser(cb) {
 		try {
 			localStorage.clear();
 			await cb();
-			dispatch(setCurrentUser({}));
-			dispatch(handlePlaylists([]));
+			dispatch(logoutUser());
+			dispatch(handleClient());
 		} catch (err) {
 			console.log(err);
 			alert(err);
