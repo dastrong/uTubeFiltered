@@ -73,6 +73,9 @@ const styles = theme => ({
 		padding: "0 0 5px 5px",
 		fontSize: "0.9rem",
 	},
+	extraRefreshPad: {
+		padding: "9px 0",
+	},
 });
 
 // used to show the countdown time or text if complete
@@ -117,6 +120,7 @@ function PlaylistCard({
 						<div className={classes.controls}>
 							<ToolTip
 								title={isUpdateAvail ? "" : "Do some work then come back"}
+								className={classes.extraRefreshPad}
 							>
 								<IconButton
 									aria-label="Refresh"
