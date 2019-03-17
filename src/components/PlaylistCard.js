@@ -99,6 +99,7 @@ function PlaylistCard({
 	handlePlay,
 	videoCount,
 	firstItem,
+	id,
 }) {
 	const [isUpdateAvail, toggler] = React.useState(isUpdateAvailable);
 
@@ -142,7 +143,7 @@ function PlaylistCard({
 									<PlayIcon className={classes.playIcon} />
 								</IconButton>
 							</ToolTip>
-							<IconButton aria-label="Delete" onClick={handleDelete}>
+							<IconButton aria-label="Delete" onClick={() => handleDelete(id)}>
 								<DeleteIcon className={classes.otherIcons} />
 							</IconButton>
 						</div>

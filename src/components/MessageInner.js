@@ -10,29 +10,25 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 const MessageInner = ({
 	handleNeg,
 	handlePos,
-	message,
-	isError,
 	textNeg,
 	textPos,
+	title,
+	message,
 }) => (
 	<>
-		<DialogTitle id="alert-dialog-title">
-			{isError
-				? "Sorry, something went wrong"
-				: "Success, everything went right"}
-		</DialogTitle>
+		<DialogTitle id="alert-dialog-title">{title}</DialogTitle>
 		<DialogContent>
 			<DialogContentText id="alert-dialog-description">
 				{message}
 			</DialogContentText>
 		</DialogContent>
 		<DialogActions>
-			<Button size="large" onClick={() => handleNeg()} color="primary">
+			<Button size="large" onClick={handleNeg} color="primary">
 				{textNeg}
 			</Button>
 			<Button
 				size="large"
-				onClick={() => handlePos()}
+				onClick={handlePos}
 				color="secondary"
 				variant="outlined"
 				autoFocus

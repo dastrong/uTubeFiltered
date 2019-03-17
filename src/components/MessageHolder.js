@@ -16,7 +16,7 @@ const MessageHolder = ({ classes, handleClose, isOpen, ...innerProps }) => (
 		classes={classes}
 		open={isOpen}
 		fullWidth
-		onClose={() => handleClose()}
+		onClose={handleClose}
 		aria-labelledby="alert-dialog-title"
 		aria-describedby="alert-dialog-description"
 	>
