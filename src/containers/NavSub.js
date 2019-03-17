@@ -1,4 +1,4 @@
-import React, { Component } from "react";
+import React from "react";
 import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import NavTabs from "../components/NavTabs";
@@ -6,58 +6,42 @@ import NavTabContainers from "../components/NavTabContainers";
 import { handleTabChange } from "../store/actions/ui";
 
 // uses the tabValue in redux store to display the correct tabs
-class NavSub extends Component {
-  // if user logs out on an active
-  // tab push back to info tab
-  componentDidUpdate() {
-    const value = this.props.tabValue;
-    if (!this.props.isAuthenticated) {
-      if (!value || value === 4) return;
-      this.props.handleTabChange(value);
-    }
-  }
-
-  handleChange = (e, value) => this.props.handleTabChange(value);
-
-  render() {
-    const {
-      isAuthenticated,
-      tabValue,
-      currentVideoId,
-      plUpdAvail
-    } = this.props;
-    return (
-      <>
-        <NavTabs
-          value={tabValue}
-          handleChange={this.handleChange}
-          isAuthenticated={isAuthenticated}
-          currentVideoId={currentVideoId}
-          plUpdAvail={plUpdAvail}
-        />
-        <NavTabContainers value={tabValue} />
-      </>
-    );
-  }
-}
+const NavSub = ({
+	isAuthenticated,
+	tabValue,
+	currentVideoId,
+	plUpdAvail,
+	handleTabChange,
+}) => (
+	<>
+		<NavTabs
+			value={tabValue}
+			handleChange={(e, value) => handleTabChange(value)}
+			isAuthenticated={isAuthenticated}
+			currentVideoId={currentVideoId}
+			plUpdAvail={plUpdAvail}
+		/>
+		<NavTabContainers value={tabValue} />
+	</>
+);
 
 NavSub.propTypes = {
-  isAuthenticated: PropTypes.bool.isRequired,
-  tabValue: PropTypes.number.isRequired
+	isAuthenticated: PropTypes.bool.isRequired,
+	tabValue: PropTypes.number.isRequired,
+	plUpdAvail: PropTypes.number.isRequired,
+	handleTabChange: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
-  plUpdAvail: state.ui.playlists.updateAvailCount,
-  isAuthenticated: state.currentUser.isAuthenticated,
-  tabValue: state.ui.tabValue,
-  currentVideoId: state.player.currentVideoId
+	plUpdAvail: state.ui.playlists.updateAvailCount,
+	isAuthenticated: state.currentUser.isAuthenticated,
+	tabValue: state.ui.tabValue,
+	currentVideoId: state.player.currentVideoId,
 });
 
-const mapDispatchToProps = {
-  handleTabChange
-};
+const mapDispatchToProps = { handleTabChange };
 
 export default connect(
-  mapStateToProps,
-  mapDispatchToProps
+	mapStateToProps,
+	mapDispatchToProps
 )(NavSub);
