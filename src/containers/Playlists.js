@@ -3,29 +3,44 @@ import PropTypes from "prop-types";
 import { connect } from "react-redux";
 import { deletePlaylist } from "../store/actions/playlists";
 import { updatePlaylistItems } from "../store/actions/playlistItems";
-import { handleTabChange } from "../store/actions/ui";
+import {
+	handleTabChange,
+	plusPlaylistsUpdateBadge,
+	minusPlaylistsUpdateBadge,
+} from "../store/actions/ui";
 import { setPlaylistId, setVideoId } from "../store/actions/player";
 import PlaylistCard from "../components/PlaylistCard";
 import MessageHolder from "../components/MessageHolder";
 
-function Playlists({
-	playlists,
-	token,
-	handleDelete,
-	handleRefresh,
-	handleTabChange,
-	setPlaylistId,
-	setVideoId,
-}) {
+function Playlists({ playlists, token, ...funcs }) {
 	const [showDeleteMsg, toggleMsg] = React.useState(false);
 	const [deleteId, toggleDeleteId] = React.useState(null);
+	const [minusBadge, toggleMinusBadge] = React.useState(false);
 
+	// fires when a user clicks the play button
 	const handlePlay = id => () => {
 		const { items } = playlists.find(playlist => playlist.id === id);
 		// go to player tab and set the playlistId and first videoId in the store
-		handleTabChange(2);
-		setPlaylistId(id);
-		setVideoId(items[0].videoId);
+		funcs.handleTabChange(2);
+		funcs.setPlaylistId(id);
+		funcs.setVideoId(items[0].videoId);
+	};
+
+	// fires when the user clicks the delete button
+	const handleDeleteDialog = (id, isUpdateAvailable) => {
+		toggleDeleteId(id);
+		toggleMsg(true);
+		toggleMinusBadge(isUpdateAvailable);
+	};
+
+	// fires when the user clicks the confirm delete button
+	const handleDeleteConfirmation = () => {
+		funcs.handleDelete(token, deleteId);
+		toggleMsg(false);
+		// if the playlist isn't available for an update stop here
+		if (!minusBadge) return;
+		// if it does have an updateAvailable, remove it from our badge count
+		funcs.minusPlaylistsUpdateBadge();
 	};
 
 	const dateNow = Date.now();
@@ -33,20 +48,19 @@ function Playlists({
 		<>
 			{playlists.map(({ tags, id, items, ...rest }) => {
 				const dateUpdate = tags.lastDate + 86400000;
+				const isUpdateAvailable = dateNow > dateUpdate;
 				return (
 					<PlaylistCard
 						key={id}
 						id={id}
 						date={dateUpdate}
-						isUpdateAvailable={dateNow > dateUpdate}
 						videoCount={items.length}
-						handleRefresh={handleRefresh.bind(this, token, id, tags)}
-						handleDelete={id => {
-							toggleDeleteId(id);
-							toggleMsg(true);
-						}}
-						handlePlay={handlePlay(id)}
 						firstItem={items[0] || {}}
+						isUpdateAvailable={isUpdateAvailable}
+						handlePlay={handlePlay(id)}
+						handleDelete={id => handleDeleteDialog(id, isUpdateAvailable)}
+						handleRefresh={() => funcs.handleRefresh(token, id, tags)}
+						plusPlaylistsUpdateBadge={funcs.plusPlaylistsUpdateBadge}
 						{...rest}
 					/>
 				);
@@ -58,10 +72,7 @@ function Playlists({
 					isOpen={showDeleteMsg}
 					handleClose={() => toggleMsg(false)}
 					handleNeg={() => toggleMsg(false)}
-					handlePos={() => {
-						handleDelete(token, deleteId);
-						toggleMsg(false);
-					}}
+					handlePos={handleDeleteConfirmation}
 					textNeg="Nvm, take me back."
 					textPos="Yes, I'm sure."
 					title="Are you sure you want to delete this playlist?"
@@ -80,6 +91,8 @@ Playlists.propTypes = {
 	handleTabChange: PropTypes.func.isRequired,
 	setPlaylistId: PropTypes.func.isRequired,
 	setVideoId: PropTypes.func.isRequired,
+	plusPlaylistsUpdateBadge: PropTypes.func.isRequired,
+	minusPlaylistsUpdateBadge: PropTypes.func.isRequired,
 };
 
 const mapStateToProps = state => ({
@@ -93,6 +106,8 @@ const mapDispatchtoProps = {
 	handleTabChange,
 	setPlaylistId,
 	setVideoId,
+	plusPlaylistsUpdateBadge,
+	minusPlaylistsUpdateBadge,
 };
 
 export default connect(

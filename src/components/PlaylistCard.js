@@ -13,7 +13,6 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import ToolTip from "./ToolTip";
-import { plusPlaylistsUpdateBadge } from "../store/actions/ui";
 import Badge from "@material-ui/core/Badge";
 
 const styles = theme => ({
@@ -100,6 +99,7 @@ function PlaylistCard({
 	videoCount,
 	firstItem,
 	id,
+	plusPlaylistsUpdateBadge,
 }) {
 	const [isUpdateAvail, toggler] = React.useState(isUpdateAvailable);
 
@@ -191,6 +191,7 @@ PlaylistCard.propTypes = {
 	handlePlay: PropTypes.func.isRequired,
 	videoCount: PropTypes.number.isRequired,
 	firstItem: PropTypes.object.isRequired,
+	plusPlaylistsUpdateBadge: PropTypes.func.isRequired,
 };
 
 export default withStyles(styles)(PlaylistCard);
