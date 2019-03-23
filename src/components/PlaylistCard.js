@@ -182,6 +182,7 @@ function PlaylistCard({
 
 PlaylistCard.propTypes = {
 	classes: PropTypes.object.isRequired,
+	id: PropTypes.string.isRequired,
 	title: PropTypes.string.isRequired,
 	date: PropTypes.number.isRequired,
 	fetchingItems: PropTypes.bool.isRequired,
