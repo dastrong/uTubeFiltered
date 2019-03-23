@@ -13,7 +13,7 @@ import DialogContentText from "@material-ui/core/DialogContentText";
 import PlaylistForm from "../components/PlaylistForm";
 import MessageHolder from "../components/MessageHolder";
 import { CircularProgress } from "@material-ui/core";
-import { description } from "../util/helpers";
+import { description, formTagParams } from "../util/helpers";
 import { connect } from "react-redux";
 import { compose } from "recompose";
 import { createPlaylist } from "../store/actions/playlists";
@@ -66,14 +66,7 @@ class DialogInner extends Component {
 		const { token, createPlaylist, handlePlaylistLoad } = this.props;
 		handlePlaylistLoad(true);
 		const channelIds = channels.map(item => item.value);
-		const tagChannels = channelIds.reduce(
-			(acc, cVal, i, arr) =>
-				acc.concat(`${cVal}${arr.length - 1 !== i ? "&" : ""}`),
-			"channel:"
-		);
-		const tagQuery = `query:${query}`;
-		const lastUpdate = `lastUpdate:${Date.now()}`;
-		const tags = [tagChannels, tagQuery, lastUpdate];
+		const tags = formTagParams(channelIds, query);
 		createPlaylist(token, { title, description, tags });
 	};
 
@@ -151,8 +144,7 @@ class DialogInner extends Component {
 							onClick={this.handleSubmit}
 							className={classes.actBtns}
 							disabled={
-								isLoading
-								// isLoading ||
+								isLoading || !this.state.channels.length
 								// !channels.length ||
 								// query.length < 4 ||
 								// title.length < 4 ||

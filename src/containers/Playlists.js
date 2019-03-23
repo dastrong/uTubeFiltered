@@ -46,22 +46,23 @@ function Playlists({ playlists, token, ...funcs }) {
 	const dateNow = Date.now();
 	return (
 		<>
-			{playlists.map(({ tags, id, items, ...rest }) => {
+			{playlists.map(({ id, tags, items, title, fetchingItems }) => {
 				const dateUpdate = tags.lastDate + 86400000;
 				const isUpdateAvailable = dateNow > dateUpdate;
 				return (
 					<PlaylistCard
 						key={id}
 						id={id}
+						title={title}
+						fetchingItems={fetchingItems}
 						date={dateUpdate}
 						videoCount={items.length}
 						firstItem={items[0] || {}}
 						isUpdateAvailable={isUpdateAvailable}
 						handlePlay={handlePlay(id)}
 						handleDelete={id => handleDeleteDialog(id, isUpdateAvailable)}
-						handleRefresh={() => funcs.handleRefresh(token, id, tags)}
+						handleRefresh={() => funcs.handleRefresh(token, id, tags, title)}
 						plusPlaylistsUpdateBadge={funcs.plusPlaylistsUpdateBadge}
-						{...rest}
 					/>
 				);
 			})}
