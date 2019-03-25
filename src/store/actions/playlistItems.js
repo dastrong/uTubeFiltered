@@ -87,7 +87,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			// update ui to show we're processing the update
 			dispatch(fetchingPlaylistItems(playlistId));
 			// everything we need is kept in the playlist tags
-			const { channels, q, lastDate } = tags;
+			const { channels, q, lastUpdate } = tags;
 			// search for video with the following params
 			const dateNow = Date.now();
 			const oneDay = 86400000;
@@ -99,7 +99,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 					? // if it's a new playlist, look back 3 days
 					  new Date(dateNow - oneDay * numOfDays).toISOString()
 					: // otherwise use the last date timestamp
-					  new Date(lastDate).toISOString(),
+					  new Date(lastUpdate).toISOString(),
 				publishedBefore: new Date(dateNow).toISOString(),
 				maxResults: 5,
 				// maxResults: 50,
@@ -123,7 +123,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			// checks and skips updating playlist if it was just created
 			// we only pass the title during updates
 			if (title) {
-				// update the playlist lastDate tag
+				// update the playlist lastUpdate tag
 				const newTags = formTagParams(channels, q);
 				dispatch(
 					updatePlaylist(token, playlistId, {

@@ -53,8 +53,8 @@ export function getPlaylists(token) {
 			// update the playlist update ui badge
 			const dateNow = Date.now();
 			const updatesAvailable = playlists.reduce(
-				(acc, cVal) =>
-					dateNow > cVal.tags.lastDate + 86400000 ? acc + 1 : acc,
+				(acc, { tags }) =>
+					tags && dateNow > tags.lastUpdate + 86400000 ? acc + 1 : acc,
 				0
 			);
 			dispatch(handlePlaylistsUpdateBadge(updatesAvailable));

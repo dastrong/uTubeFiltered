@@ -43,12 +43,18 @@ function Playlists({ playlists, token, ...funcs }) {
 		funcs.minusPlaylistsUpdateBadge();
 	};
 
+	const handleRefresh = (...args) => () => {
+		funcs.updatePlaylistItems(...args);
+		funcs.minusPlaylistsUpdateBadge();
+	};
+
 	const dateNow = Date.now();
 	return (
 		<>
 			{playlists.map(({ id, tags, items, title, fetchingItems }) => {
-				const dateUpdate = tags.lastDate + 86400000;
-				const isUpdateAvailable = dateNow > dateUpdate;
+				const dateUpdate = tags && tags.lastUpdate + 86400000;
+				const isUpdateAvailable = tags && dateNow > dateUpdate;
+				const videoCount = items.length;
 				return (
 					<PlaylistCard
 						key={id}
@@ -56,12 +62,16 @@ function Playlists({ playlists, token, ...funcs }) {
 						title={title}
 						fetchingItems={fetchingItems}
 						date={dateUpdate}
-						videoCount={items.length}
-						firstItem={items[0] || {}}
+						videoCount={videoCount}
+						thumbnail={
+							videoCount
+								? items[0].thumbnail
+								: "https://s.ytimg.com/yts/img/no_thumbnail-vfl4t3-4R.jpg"
+						}
 						isUpdateAvailable={isUpdateAvailable}
 						handlePlay={handlePlay(id)}
 						handleDelete={id => handleDeleteDialog(id, isUpdateAvailable)}
-						handleRefresh={() => funcs.handleRefresh(token, id, tags, title)}
+						handleRefresh={handleRefresh(token, id, tags, title)}
 						plusPlaylistsUpdateBadge={funcs.plusPlaylistsUpdateBadge}
 					/>
 				);
@@ -88,7 +98,7 @@ Playlists.propTypes = {
 	playlists: PropTypes.array.isRequired,
 	token: PropTypes.string.isRequired,
 	handleDelete: PropTypes.func.isRequired,
-	handleRefresh: PropTypes.func.isRequired,
+	updatePlaylistItems: PropTypes.func.isRequired,
 	handleTabChange: PropTypes.func.isRequired,
 	setPlaylistId: PropTypes.func.isRequired,
 	setVideoId: PropTypes.func.isRequired,
@@ -103,7 +113,7 @@ const mapStateToProps = state => ({
 
 const mapDispatchtoProps = {
 	handleDelete: deletePlaylist,
-	handleRefresh: updatePlaylistItems,
+	updatePlaylistItems,
 	handleTabChange,
 	setPlaylistId,
 	setVideoId,

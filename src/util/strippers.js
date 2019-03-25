@@ -34,18 +34,26 @@ export const stripChannelSearch = item => ({
 // used to strip and convert the tags
 // array from our playlists
 export function stripTags(tags) {
-	const channels = tags[0].startsWith("channel:")
-		? tags[0].slice(8).split("&")
-		: console.log("Incorrect Channel Format");
-
-	const q = tags[1].startsWith("query:")
-		? tags[1].slice(6)
-		: console.log("Incorrect Query Format");
-
-	const lastDate = tags[2].startsWith("lastUpdate:")
-		? Number(tags[2].slice(11))
-		: console.log("Incorrect Date Format");
-
-	const strippedTags = { channels, q, lastDate };
-	return strippedTags;
+	if (!tags) return null;
+	// checks to make sure tags are the correct format
+	const isValidTags = tags.every(
+		tag =>
+			tag.startsWith("channel:") ||
+			tag.startsWith("query:") ||
+			tag.startsWith("lastUpdate:")
+	);
+	if (!isValidTags) return null;
+	// all tags must match the following three formats
+	// catches all non uTubeFiltered playlists and tampered playlists
+	return tags.reduce((acc, cVal) => {
+		if (acc === null) return null;
+		if (cVal.startsWith("channel:")) {
+			acc.channel = cVal.slice(8).split("&");
+		} else if (cVal.startsWith("query:")) {
+			acc.query = cVal.slice(6);
+		} else if (cVal.startsWith("lastUpdate:")) {
+			acc.lastUpdate = Number(cVal.slice(11));
+		} else return null;
+		return acc;
+	}, {});
 }

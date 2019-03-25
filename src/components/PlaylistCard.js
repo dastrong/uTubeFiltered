@@ -11,6 +11,7 @@ import PlayIcon from "@material-ui/icons/PlayArrow";
 import IconButton from "@material-ui/core/IconButton";
 import RefreshIcon from "@material-ui/icons/Refresh";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
+import NotInterested from "@material-ui/icons/NotInterestedRounded";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import ToolTip from "./ToolTip";
 import Badge from "@material-ui/core/Badge";
@@ -78,14 +79,14 @@ const styles = theme => ({
 });
 
 // used to show the countdown time or text if complete
-const CountdownText = ({ hours, minutes, seconds, completed }) => (
-	<Typography variant="caption">
+const CountdownText = ({ hours, minutes, seconds, completed }) => `
 		Update
-		{completed
-			? " now!"
-			: ` in ${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`}
-	</Typography>
-);
+		${
+			completed
+				? " now!"
+				: ` in ${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`
+		}
+`;
 
 function PlaylistCard({
 	classes,
@@ -97,7 +98,7 @@ function PlaylistCard({
 	handleDelete,
 	handlePlay,
 	videoCount,
-	firstItem,
+	thumbnail,
 	id,
 	plusPlaylistsUpdateBadge,
 }) {
@@ -120,18 +121,33 @@ function PlaylistCard({
 					<div className={classes.info}>
 						<div className={classes.controls}>
 							<ToolTip
-								title={isUpdateAvail ? "" : "Do some work then come back"}
+								title={
+									isUpdateAvailable === null
+										? "Refer to FAQ for more info"
+										: isUpdateAvail
+										? ""
+										: "Do some work then come back"
+								}
 								className={classes.extraRefreshPad}
 							>
 								<IconButton
 									aria-label="Refresh"
 									disabled={!isUpdateAvail}
-									onClick={handleRefresh}
+									onClick={isUpdateAvailable !== null ? handleRefresh : null}
 								>
-									<RefreshIcon className={classes.otherIcons} />
-									{fetchingItems && (
-										<CircularProgress className={classes.updating} />
-									)}
+									{isUpdateAvailable === null ? (
+										<NotInterested
+											color="error"
+											className={classes.otherIcons}
+										/>
+									) : (
+										<>
+											<RefreshIcon className={classes.otherIcons} />
+											{fetchingItems && (
+												<CircularProgress className={classes.updating} />
+											)}
+										</>
+									)}{" "}
 								</IconButton>
 							</ToolTip>
 							<ToolTip title={videoCount ? "" : "No videos found in here"}>
@@ -148,12 +164,18 @@ function PlaylistCard({
 							</IconButton>
 						</div>
 						<CardContent className={classes.date}>
-							<Countdown
-								date={date}
-								zeroPadTime={0}
-								renderer={CountdownText}
-								onComplete={() => toggleAvailability()}
-							/>
+							<Typography variant="caption">
+								{isUpdateAvailable !== null ? (
+									<Countdown
+										date={date}
+										zeroPadTime={0}
+										renderer={CountdownText}
+										onComplete={() => toggleAvailability()}
+									/>
+								) : (
+									"Not a uTubeFiltered playlist"
+								)}
+							</Typography>
 						</CardContent>
 					</div>
 					<Badge
@@ -167,11 +189,7 @@ function PlaylistCard({
 							alt="playlist thumbnail"
 							className={classes.cover}
 							title={title}
-							image={
-								videoCount
-									? firstItem.thumbnail
-									: "https://s.ytimg.com/yts/img/no_thumbnail-vfl4t3-4R.jpg"
-							}
+							image={thumbnail}
 						/>
 					</Badge>
 				</div>
@@ -184,14 +202,12 @@ PlaylistCard.propTypes = {
 	classes: PropTypes.object.isRequired,
 	id: PropTypes.string.isRequired,
 	title: PropTypes.string.isRequired,
-	date: PropTypes.number.isRequired,
 	fetchingItems: PropTypes.bool.isRequired,
-	isUpdateAvailable: PropTypes.bool.isRequired,
 	handleDelete: PropTypes.func.isRequired,
 	handleRefresh: PropTypes.func.isRequired,
 	handlePlay: PropTypes.func.isRequired,
 	videoCount: PropTypes.number.isRequired,
-	firstItem: PropTypes.object.isRequired,
+	thumbnail: PropTypes.string.isRequired,
 	plusPlaylistsUpdateBadge: PropTypes.func.isRequired,
 };
 
