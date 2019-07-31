@@ -112,6 +112,7 @@ export function updatePlaylist(token, id, snippet) {
 			const { tags } = resp.snippet;
 			const newTags = stripTags(tags);
 			dispatch(handleUpdate(id, newTags));
+			dispatch(updatePlaylistItems(token, id, tags));
 		} catch (err) {
 			console.log(err);
 			dispatch(handlePlaylistMsg(true, err));

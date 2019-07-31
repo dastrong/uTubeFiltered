@@ -87,7 +87,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			// update ui to show we're processing the update
 			dispatch(fetchingPlaylistItems(playlistId));
 			// everything we need is kept in the playlist tags
-			const { channels, q, lastUpdate } = tags;
+			const { channels, query, lastUpdate } = tags;
 			// search for video with the following params
 			const dateNow = Date.now();
 			const oneDay = 86400000;
@@ -104,11 +104,12 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 				maxResults: 5,
 				// maxResults: 50,
 				type: "video",
-				q,
+				q: query,
 			};
+			console.log(tags);
 			// https://developers.google.com/youtube/v3/docs/search/list#parameters
 			// returns results in an array named items
-			const [{ items }] = await Promise.all(
+			const items = await Promise.all(
 				channels.map(async channelId => {
 					return await apiRequest("GET", halfSearchURL, token, {
 						channelId,
@@ -116,6 +117,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 					});
 				})
 			);
+			console.log(items);
 			// separates the videoIds into their own array
 			const videoIds = items.map(item => item.id.videoId);
 			// will throw if an error happens
@@ -124,7 +126,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			// we only pass the title during updates
 			if (title) {
 				// update the playlist lastUpdate tag
-				const newTags = formTagParams(channels, q);
+				const newTags = formTagParams(channels, query);
 				dispatch(
 					updatePlaylist(token, playlistId, {
 						title,

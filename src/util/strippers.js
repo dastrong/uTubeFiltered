@@ -48,7 +48,7 @@ export function stripTags(tags) {
 	return tags.reduce((acc, cVal) => {
 		if (acc === null) return null;
 		if (cVal.startsWith("channel:")) {
-			acc.channel = cVal.slice(8).split("&");
+			acc.channels = cVal.slice(8).split("&");
 		} else if (cVal.startsWith("query:")) {
 			acc.query = cVal.slice(6);
 		} else if (cVal.startsWith("lastUpdate:")) {
