@@ -3,7 +3,6 @@ import PlaylistsTab from "../containers/PlaylistsTab";
 import PlayerTab from "../containers/PlayerTab";
 
 const NavTabContainers = ({ value }) => (
-  // <div style={{ padding: "5px" }}>
   <div>
     {value === 0 && (
       <div>
