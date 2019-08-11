@@ -1,23 +1,23 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
-import FormGroup from "@material-ui/core/FormGroup";
-import TextField from "@material-ui/core/TextField";
+import { makeStyles } from "@material-ui/core/styles";
+import { FormGroup, TextField } from "@material-ui/core";
 import AsyncSelect from "react-select/async";
 import * as SelectComponents from "./ChannelSelects";
 import { noOptionsMessage, loadMultiOptions } from "../util/search";
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   root: {
     flexGrow: 1,
     padding: "10px 0"
   },
   input: {
     display: "flex",
-    padding: 0
+    padding: 0,
+    height: "inherit"
   },
   textField: {
-    minHeight: 27,
+    minHeight: 36,
     padding: "16px 14px"
   },
   valueContainer: {
@@ -27,13 +27,16 @@ const styles = theme => ({
     alignItems: "center",
     overflow: "hidden",
     padding: "16px 14px",
-    minHeight: 19
+    minHeight: 36
   },
   chip: {
-    margin: `${theme.spacing.unit / 2}px ${theme.spacing.unit / 4}px`
+    margin: `${theme.spacing(0.25)}px ${theme.spacing(0.25)}px`
+  },
+  avatar: {
+    margin: 10
   },
   noOptionsMessage: {
-    padding: `${theme.spacing.unit}px ${theme.spacing.unit * 2}px`
+    padding: `${theme.spacing()}px ${theme.spacing(0.5)}px`
   },
   placeholder: {
     color: "rgba(0, 0, 0, 0.4)",
@@ -44,85 +47,70 @@ const styles = theme => ({
   paper: {
     position: "absolute",
     zIndex: 10,
-    marginTop: theme.spacing.unit,
-    left: 0,
-    right: 0
+    marginTop: -5,
+    left: 5,
+    right: 5,
+    boxShadow: "-0.1px -0.1px 0.9px rgba(0,0,0,0.5)"
   },
   divider: {
-    height: theme.spacing.unit * 2
+    height: `${theme.spacing(2)}px`
   }
-});
+}));
 
-const PlaylistForm = ({ classes, token, channels, query, title, ...funcs }) => (
-  <form noValidate autoComplete="off" className={classes.root}>
-    <FormGroup>
-      <TextField
-        label="Playlist Title"
-        type="text"
-        name="title"
-        placeholder="What do you want to call this playlist?"
-        value={title}
-        onChange={funcs.handleInputs("title")}
-        margin="normal"
-        variant="outlined"
-        InputLabelProps={{
-          shrink: true
-        }}
-        InputProps={{
-          classes: {
-            input: classes.textField
-          }
-        }}
-      />
-      <AsyncSelect
-        isMulti
-        value={channels}
-        classes={classes}
-        components={SelectComponents}
-        onChange={funcs.handleSelect}
-        noOptionsMessage={noOptionsMessage}
-        loadOptions={loadMultiOptions(token)}
-        placeholder="What channels do you want us to search in?"
-        textFieldProps={{
-          label: "Channels",
-          margin: "normal",
-          variant: "outlined",
-          InputLabelProps: {
-            shrink: true
-          }
-        }}
-      />
-      <TextField
-        label="Search Query"
-        type="text"
-        name="query"
-        placeholder="What do you want to search?"
-        value={query}
-        onChange={funcs.handleInputs("query")}
-        margin="normal"
-        variant="outlined"
-        InputLabelProps={{
-          shrink: true
-        }}
-        InputProps={{
-          classes: {
-            input: classes.textField
-          }
-        }}
-      />
-    </FormGroup>
-  </form>
-);
+export default function PlaylistForm(props) {
+  const { channels, query, title, token, formPatch } = props;
+  const classes = useStyles();
+
+  return (
+    <form noValidate autoComplete="off" className={classes.root}>
+      <FormGroup>
+        <TextField
+          label="Playlist Title"
+          type="text"
+          placeholder="What do you want to call this playlist?"
+          value={title}
+          onChange={e => formPatch({ type: "Title", title: e.target.value })}
+          margin="normal"
+          variant="outlined"
+          InputLabelProps={{ shrink: true }}
+          InputProps={{ classes: { input: classes.textField } }}
+        />
+        <AsyncSelect
+          isMulti
+          value={channels}
+          classes={classes}
+          components={SelectComponents}
+          onChange={arr => formPatch({ type: "Channels", channels: arr || [] })}
+          noOptionsMessage={noOptionsMessage}
+          loadOptions={loadMultiOptions(token)}
+          placeholder="What channels do you want us to search in?"
+          textFieldProps={{
+            label: "Channels",
+            margin: "normal",
+            variant: "outlined",
+            InputLabelProps: { shrink: true }
+          }}
+        />
+        <TextField
+          label="Search Query"
+          type="text"
+          placeholder="What do you want to search?"
+          value={query}
+          onChange={e => formPatch({ type: "Query", query: e.target.value })}
+          margin="normal"
+          variant="outlined"
+          InputLabelProps={{ shrink: true }}
+          InputProps={{ classes: { input: classes.textField } }}
+        />
+      </FormGroup>
+    </form>
+  );
+}
 
 PlaylistForm.propTypes = {
-  classes: PropTypes.object.isRequired,
   channels: PropTypes.array.isRequired,
   query: PropTypes.string.isRequired,
   title: PropTypes.string.isRequired,
   token: PropTypes.string.isRequired,
-  handleSelect: PropTypes.func.isRequired,
-  handleInputs: PropTypes.func.isRequired,
-  handleSubmit: PropTypes.func.isRequired
+  formPatch: PropTypes.func.isRequired
 };
-
-export default withStyles(styles)(PlaylistForm);
