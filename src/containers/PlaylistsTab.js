@@ -14,9 +14,9 @@ import { minusPlaylistsUpdateBadge } from "../store/actions/ui";
 
 const useStyles = makeStyles(theme => ({
   container: {
-    padding: "10px 5px",
-    [theme.breakpoints.up("sm")]: {
-      padding: 10
+    padding: 10,
+    [theme.breakpoints.down("xs")]: {
+      marginBottom: 48
     }
   }
 }));

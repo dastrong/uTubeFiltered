@@ -1,7 +1,7 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/core/styles";
-import { Tabs, Tab, Paper, Badge } from "@material-ui/core/";
+import { makeStyles, useTheme } from "@material-ui/core/styles";
+import { Tabs, Tab, Paper, Badge, useMediaQuery } from "@material-ui/core/";
 import TvIcon from "@material-ui/icons/LiveTv";
 import HelpIcon from "@material-ui/icons/Help";
 import InfoIcon from "@material-ui/icons/Info";
@@ -10,6 +10,12 @@ import PlaylistIcon from "@material-ui/icons/PlaylistPlay";
 import ToolTip from "./ToolTip";
 
 const useStyles = makeStyles({
+  root: {
+    position: "fixed",
+    bottom: 0,
+    width: "100%",
+    zIndex: 111
+  },
   tabs: {
     flex: "auto",
     maxWidth: 150,
@@ -36,9 +42,11 @@ export default function NavTabs({
   plUpdAvail
 }) {
   const classes = useStyles();
+  const theme = useTheme();
+  const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
 
   return (
-    <Paper square>
+    <Paper square className={isMobile ? classes.root : ""}>
       <Tabs
         value={value}
         onChange={handleChange}

@@ -1,15 +1,20 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { makeStyles } from "@material-ui/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import { Zoom, Fab } from "@material-ui/core";
 import PlaylistIcon from "@material-ui/icons/PlaylistAdd";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   fab: {
     position: "absolute",
-    right: 5
+    right: 5,
+    zIndex: 11,
+    [theme.breakpoints.down("xs")]: {
+      bottom: 53,
+      position: "fixed"
+    }
   }
-});
+}));
 
 export default function PlaylistCreateIcon({ statePatch }) {
   const classes = useStyles();
