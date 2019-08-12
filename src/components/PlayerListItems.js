@@ -1,49 +1,38 @@
-import React from "react";
+import React, { useLayoutEffect } from "react";
 import PropTypes from "prop-types";
 import PlayerListItem from "./PlayerListItem";
+import { setVideoId } from "../store/actions/player";
 
-const PlayerListItems = ({
-	playlistItems,
-	deleteItem,
-	currentVideoId,
-	playItem,
-}) => {
-	React.useLayoutEffect(() => {
-		const i = playlistItems.findIndex(item => item.videoId === currentVideoId);
-		document.querySelector(".items-holder").scrollTop = i * 100;
-	});
+export default function PlayerListItems(props) {
+  const { videos, deleteVid, storePatch, curVidId, curVidIdx } = props;
 
-	return (
-		<div
-			className="items-holder"
-			style={{ maxHeight: "500px", overflowY: "auto" }}
-		>
-			{playlistItems.map(
-				({ videoId, videoTitle, thumbnail, playlistItemId }) => {
-					const isPlaying = videoId === currentVideoId;
-					return (
-						<PlayerListItem
-							key={videoId}
-							title={videoTitle}
-							thumbnail={thumbnail}
-							deleteItem={() =>
-								deleteItem({ playlistItemId, videoId }, isPlaying)
-							}
-							playItem={() => playItem(videoId)}
-							isPlaying={isPlaying}
-						/>
-					);
-				}
-			)}
-		</div>
-	);
-};
+  useLayoutEffect(() => {
+    document.querySelector("#items-holder").scrollTop = curVidIdx * 100;
+  }, [curVidIdx]);
+
+  return (
+    <div id="items-holder" style={{ maxHeight: "500px", overflowY: "auto" }}>
+      {videos.map(({ videoId, videoTitle, thumbnail, playlistItemId }, i) => {
+        const isPlaying = videoId === curVidId;
+        return (
+          <PlayerListItem
+            key={i + " listItem: " + videoId}
+            title={videoTitle}
+            thumbnail={thumbnail}
+            deleteVid={() => deleteVid(isPlaying, playlistItemId)}
+            playVid={() => storePatch(setVideoId(videoId))}
+            isPlaying={isPlaying}
+          />
+        );
+      })}
+    </div>
+  );
+}
 
 PlayerListItems.propTypes = {
-	playlistItems: PropTypes.array.isRequired,
-	deleteItem: PropTypes.func.isRequired,
-	currentVideoId: PropTypes.string.isRequired,
-	playItem: PropTypes.func.isRequired,
+  videos: PropTypes.array.isRequired,
+  deleteVid: PropTypes.func.isRequired,
+  storePatch: PropTypes.func.isRequired,
+  curVidId: PropTypes.string.isRequired,
+  curVidIdx: PropTypes.number.isRequired
 };
-
-export default PlayerListItems;

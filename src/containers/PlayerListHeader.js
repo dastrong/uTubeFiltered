@@ -1,15 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { compose } from "recompose";
-import { connect } from "react-redux";
-import { withStyles } from "@material-ui/core/styles";
-import FormControlLabel from "@material-ui/core/FormControlLabel";
-import Typography from "@material-ui/core/Typography";
-import Switch from "@material-ui/core/Switch";
+import { makeStyles } from "@material-ui/core/styles";
+import { FormControlLabel, Typography, Switch } from "@material-ui/core";
 import CheckIcon from "@material-ui/icons/CheckCircleRounded";
 import { toggleAutoDelete } from "../store/actions/player";
 
-const styles = theme => ({
+const useStyles = makeStyles(theme => ({
   container: {
     display: "flex",
     justifyContent: "center",
@@ -29,49 +25,36 @@ const styles = theme => ({
   autoDelete: {
     fontSize: "0.75rem"
   }
-});
+}));
 
-const PlayerListHeader = ({
-  classes,
-  playlistTitle,
-  autoDelete,
-  toggleAutoDelete
-}) => (
-  <div className={classes.container}>
-    <Typography className={classes.title} variant="subtitle2">
-      {playlistTitle}
-    </Typography>
-    <FormControlLabel
-      className={classes.autoDelete}
-      control={
-        <Switch
-          checked={autoDelete}
-          checkedIcon={<CheckIcon />}
-          color="primary"
-          onChange={toggleAutoDelete}
-        />
-      }
-      label="Auto Delete"
-      labelPlacement="start"
-    />
-  </div>
-);
+export default function PlayerListHeader(props) {
+  const { playlistTitle, autoDelete, storePatch } = props;
+  const classes = useStyles();
+
+  return (
+    <div className={classes.container}>
+      <Typography className={classes.title} variant="subtitle2">
+        {playlistTitle}
+      </Typography>
+      <FormControlLabel
+        className={classes.autoDelete}
+        control={
+          <Switch
+            checked={autoDelete}
+            checkedIcon={<CheckIcon />}
+            color="primary"
+            onChange={() => storePatch(toggleAutoDelete())}
+          />
+        }
+        label="Auto Delete"
+        labelPlacement="start"
+      />
+    </div>
+  );
+}
 
 PlayerListHeader.propTypes = {
-  classes: PropTypes.object.isRequired,
   playlistTitle: PropTypes.string.isRequired,
   autoDelete: PropTypes.bool.isRequired,
-  toggleAutoDelete: PropTypes.func.isRequired
+  storePatch: PropTypes.func.isRequired
 };
-
-const mapStateToProps = ({ player }) => ({ autoDelete: player.autoDelete });
-
-const mapDispatchToProps = { toggleAutoDelete };
-
-export default compose(
-  withStyles(styles),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
-)(PlayerListHeader);

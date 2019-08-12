@@ -1,12 +1,11 @@
 import React from "react";
 import PropTypes from "prop-types";
-import { withStyles } from "@material-ui/core/styles";
-import Typography from "@material-ui/core/Typography";
-import Grid from "@material-ui/core/Grid";
+import { makeStyles } from "@material-ui/core/styles";
+import { Typography, Grid } from "@material-ui/core";
 import PlayerInfoDescription from "./PlayerInfoDescription";
 import { convertDateToString } from "../util/helpers";
 
-const styles = {
+const useStyles = makeStyles({
   container: {
     padding: 5,
     width: "100%",
@@ -21,18 +20,19 @@ const styles = {
     color: "inherit",
     textDecoration: "inherit"
   }
-};
+});
 
-const PlayerInfo = ({
-  classes,
-  videoTitle,
-  videoDate,
+export default function PlayerInfo({
   channelId,
   channelName,
   description,
+  videoDate,
+  videoTitle,
   viewsCount
-}) => {
+}) {
+  const classes = useStyles();
   const date = convertDateToString(videoDate);
+
   return (
     <Grid item className={classes.container}>
       <Typography variant="subtitle1">{videoTitle}</Typography>
@@ -53,13 +53,13 @@ const PlayerInfo = ({
       <PlayerInfoDescription description={description} />
     </Grid>
   );
-};
+}
 
 PlayerInfo.propTypes = {
-  classes: PropTypes.object.isRequired,
-  videoTitle: PropTypes.string.isRequired,
+  channelId: PropTypes.string.isRequired,
+  channelName: PropTypes.string.isRequired,
+  description: PropTypes.string.isRequired,
   videoDate: PropTypes.string.isRequired,
-  description: PropTypes.string.isRequired
+  videoTitle: PropTypes.string.isRequired,
+  viewsCount: PropTypes.string.isRequired
 };
-
-export default withStyles(styles)(PlayerInfo);

@@ -1,8 +1,7 @@
 import React from "react";
-import PropTypes from "prop-types";
-import { compose } from "recompose";
-import { connect } from "react-redux";
-import { withStyles } from "@material-ui/core/styles";
+import { useDispatch, useSelector } from "react-redux";
+import { createSelector } from "reselect";
+import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Player from "../components/Player";
 import PlayerInfo from "../components/PlayerInfo";
@@ -11,27 +10,78 @@ import PlayerListItems from "../components/PlayerListItems";
 import { deletePlaylistItem } from "../store/actions/playlistItems";
 import { setVideoId, setPlaylistId } from "../store/actions/player";
 import { handleTabChange } from "../store/actions/ui";
-import { handleVideoPlayer } from "../util/helpers";
 
-const styles = theme => ({
-  container: { [theme.breakpoints.up("sm")]: { paddingTop: 15 } }
-});
+const useStyles = makeStyles(theme => ({
+  container: {
+    [theme.breakpoints.up("sm")]: {
+      paddingTop: 15
+    }
+  }
+}));
 
-const PlayerTab = ({
-  classes,
-  token,
-  title,
-  items,
-  video,
-  autoDelete,
-  playlistId,
-  ...dispatchers
-}) => {
-  // these variables are used when the video is finished
-  const funcs = dispatchers;
-  const values = { token, title, items, autoDelete, playlistId };
+const tokenSelector = state => state.currentUser.user.tokenAccess;
+const playerSelector = state => state.player;
+const playlistSelector = state => state.playlists;
+
+const optionsSelector = createSelector(
+  playlistSelector,
+  playerSelector,
+  (playlists, { playlistId, currentVideoId, autoDelete }) => {
+    const { title, items } = playlists.find(({ id }) => id === playlistId);
+    const curVidIdx = items.findIndex(item => item.videoId === currentVideoId);
+    const video = items[curVidIdx];
+    return { title, items, playlistId, autoDelete, curVidIdx, video };
+  }
+);
+
+const getState = createSelector(
+  tokenSelector,
+  optionsSelector,
+  (token, options) => ({ token, ...options })
+);
+
+export default function PlayerTab() {
+  const classes = useStyles();
+  const storePatch = useDispatch();
+  const state = useSelector(getState);
+  const {
+    token,
+    title,
+    items,
+    playlistId,
+    autoDelete,
+    curVidIdx,
+    video
+  } = state;
   const { playlistItemId, videoId } = video;
-  const vidIds = { playlistItemId, videoId };
+
+  function onFinish() {
+    if (autoDelete) {
+      deleteVideo(true, playlistItemId);
+    }
+    playNextVideo();
+  }
+
+  function deleteVideo(isPlaying, playlistItemId) {
+    // dispatch our action to delete the playlist item above
+    storePatch(deletePlaylistItem(token, playlistItemId, playlistId));
+    // go back to playlists tab and reset the player ids
+    if (items.length === 1) {
+      storePatch(handleTabChange(1));
+      storePatch(setVideoId(null));
+      storePatch(setPlaylistId(null));
+      return;
+    }
+    if (isPlaying) {
+      playNextVideo();
+    }
+  }
+
+  function playNextVideo() {
+    const nextVidId = _getNextVideoId(items, curVidIdx);
+    storePatch(setVideoId(nextVidId));
+  }
+
   return (
     <Grid
       className={classes.container}
@@ -41,65 +91,29 @@ const PlayerTab = ({
       alignItems="flex-start"
     >
       <Grid container item xs={12} sm={10} md={6}>
-        <Player
-          videoId={videoId}
-          onFinish={handleVideoPlayer(autoDelete, funcs, values, vidIds)}
-        />
+        <Player videoId={videoId} onFinish={onFinish} />
         <PlayerInfo {...video} />
       </Grid>
       <Grid item xs={12} sm={10} md={5}>
-        <PlayerListHeader playlistTitle={title} />
+        <PlayerListHeader
+          playlistTitle={title}
+          autoDelete={autoDelete}
+          storePatch={storePatch}
+        />
         <PlayerListItems
-          playlistItems={items}
-          deleteItem={handleVideoPlayer(true, funcs, values)}
-          playItem={dispatchers.setVideoId}
-          currentVideoId={videoId}
+          videos={items}
+          deleteVid={deleteVideo}
+          storePatch={storePatch}
+          curVidId={videoId}
+          curVidIdx={curVidIdx}
         />
       </Grid>
     </Grid>
   );
-};
+}
 
-PlayerTab.propTypes = {
-  classes: PropTypes.object.isRequired,
-  token: PropTypes.string.isRequired,
-  title: PropTypes.string.isRequired,
-  items: PropTypes.array.isRequired,
-  video: PropTypes.object.isRequired,
-  autoDelete: PropTypes.bool.isRequired,
-  playlistId: PropTypes.string.isRequired,
-  deleteItem: PropTypes.func.isRequired,
-  setVideoId: PropTypes.func.isRequired,
-  setPlaylistId: PropTypes.func.isRequired,
-  handleTabChange: PropTypes.func.isRequired
-};
-
-const mapStateToProps = ({ playlists, player, currentUser }) => {
-  const token = currentUser.user.tokenAccess;
-  const { title, items } = playlists.find(({ id }) => id === player.playlistId);
-  const { playlistId, autoDelete } = player;
-  const video = items.find(item => item.videoId === player.currentVideoId);
-  return {
-    token,
-    title,
-    items,
-    video,
-    playlistId,
-    autoDelete
-  };
-};
-
-const mapDispatchToProps = {
-  deleteItem: deletePlaylistItem,
-  setVideoId,
-  setPlaylistId,
-  handleTabChange
-};
-
-export default compose(
-  withStyles(styles),
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
-)(PlayerTab);
+function _getNextVideoId(items, curVidIdx) {
+  return items.length - 1 === curVidIdx
+    ? items[0].videoId
+    : items[curVidIdx + 1].videoId;
+}

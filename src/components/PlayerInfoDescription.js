@@ -1,10 +1,10 @@
-import React, { Component } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import Linkify from "react-linkify";
-import { withStyles } from "@material-ui/core/styles";
+import { makeStyles } from "@material-ui/core/styles";
 import Button from "@material-ui/core/Button";
 
-const styles = {
+const useStyles = makeStyles({
   description: {
     fontSize: "14px",
     overflow: "hidden",
@@ -18,55 +18,52 @@ const styles = {
     padding: 10,
     margin: "5px 10px"
   }
-};
+});
 
-// dynamicaly expandable/collapsable
-class PlayerInfoDescription extends Component {
-  state = { expanded: false };
+export default function PlayerInfoDescription({ description }) {
+  const classes = useStyles();
+  const [isOpen, setIsOpen] = useState(false);
+  const [showMoreButton, setButtonVisi] = useState(false);
+  const outerRef = useRef(null);
+  const innerRef = useRef(null);
 
-  componentDidMount() {
-    const innerWidth = this.innerRef.offsetWidth;
-    const outerWidth = this.outerRef.offsetWidth;
-    this.setState({ showMoreButton: innerWidth > outerWidth });
-  }
+  useEffect(() => {
+    const outerWidth = outerRef.current.offsetWidth;
+    const innerWidth = innerRef.current.offsetWidth;
+    const shouldShowMoreButton = innerWidth > outerWidth;
+    if (!shouldShowMoreButton) return;
+    setButtonVisi(true);
+  }, []);
 
-  toggleMore = () => this.setState({ expanded: !this.state.expanded });
+  const [maxHeight, whiteSpace] = isOpen
+    ? ["100%", "pre-line"]
+    : ["14px", "nowrap"];
 
-  render() {
-    const { expanded, showMoreButton } = this.state;
-    const { classes, description } = this.props;
-    const [maxHeight, whiteSpace] = expanded
-      ? ["100%", "pre-line"]
-      : ["14px", "nowrap"];
-    return (
-      <>
-        <Linkify properties={{ target: "_blank", rel: "noopener noreferrer" }}>
-          <div
-            ref={el => (this.outerRef = el)}
-            className={classes.description}
-            style={{ maxHeight, whiteSpace }}
-          >
-            <span ref={el => (this.innerRef = el)}>{description}</span>
-          </div>
-        </Linkify>
-        {showMoreButton && (
-          <Button
-            className={classes.button}
-            variant="text"
-            disableRipple={true}
-            onClick={this.toggleMore}
-          >
-            Show {expanded ? "Less" : "More"}
-          </Button>
-        )}
-      </>
-    );
-  }
+  return (
+    <>
+      <Linkify properties={{ target: "_blank", rel: "noopener noreferrer" }}>
+        <div
+          ref={outerRef}
+          className={classes.description}
+          style={{ maxHeight, whiteSpace }}
+        >
+          <span ref={innerRef}>{description}</span>
+        </div>
+      </Linkify>
+      {showMoreButton && (
+        <Button
+          className={classes.button}
+          variant="text"
+          disableRipple={true}
+          onClick={() => setIsOpen(state => !state)}
+        >
+          Show {isOpen ? "Less" : "More"}
+        </Button>
+      )}
+    </>
+  );
 }
 
 PlayerInfoDescription.propTypes = {
-  classes: PropTypes.object.isRequired,
   description: PropTypes.string.isRequired
 };
-
-export default withStyles(styles)(PlayerInfoDescription);
