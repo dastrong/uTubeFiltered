@@ -4,7 +4,8 @@ import { stripChannelSearch } from "./strippers";
 
 const halfURL = fetchURL("search");
 
-export const noOptionsMessage = ({ inputValue }) => {
+export const noOptionsMessage = ({ inputValue }, isSearchable) => {
+  if (!isSearchable) return "Max. 3 channels allowed";
   if (inputValue.length < 3) return "Min. 3 characters needed";
   if (inputValue.length > 20) return "Max. 20 characters allowed";
   return "Channel Not Found";

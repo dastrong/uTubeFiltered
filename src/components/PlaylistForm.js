@@ -36,7 +36,8 @@ const useStyles = makeStyles(theme => ({
     margin: 10
   },
   noOptionsMessage: {
-    padding: `${theme.spacing()}px ${theme.spacing(0.5)}px`
+    padding: `${theme.spacing()}px ${theme.spacing(0.5)}px`,
+    textAlign: "center"
   },
   placeholder: {
     color: "rgba(0, 0, 0, 0.4)",
@@ -60,6 +61,7 @@ const useStyles = makeStyles(theme => ({
 export default function PlaylistForm(props) {
   const { channels, query, title, token, formPatch } = props;
   const classes = useStyles();
+  const maxChannelsReached = channels.length < 3;
 
   return (
     <form noValidate autoComplete="off" className={classes.root}>
@@ -77,11 +79,14 @@ export default function PlaylistForm(props) {
         />
         <AsyncSelect
           isMulti
+          isSearchable={maxChannelsReached}
           value={channels}
           classes={classes}
           components={SelectComponents}
           onChange={arr => formPatch({ type: "Channels", channels: arr || [] })}
-          noOptionsMessage={noOptionsMessage}
+          noOptionsMessage={inputValue =>
+            noOptionsMessage(inputValue, maxChannelsReached)
+          }
           loadOptions={loadMultiOptions(token)}
           placeholder="What channels do you want us to search in?"
           textFieldProps={{
