@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback } from "react";
+import React, { useReducer, useCallback, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { createSelector } from "reselect";
 import { makeStyles } from "@material-ui/core/styles";
@@ -73,6 +73,10 @@ export default function PlaylistsTab() {
   }, []);
 
   const sortedPlaylists = useSort(playlists, sortBy, order);
+
+  useLayoutEffect(() => {
+    document.querySelector("body").scrollIntoView();
+  }, [sortBy, order]);
 
   // fires when user confirms playlist deletion
   function deletePL() {
