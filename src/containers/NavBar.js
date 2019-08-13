@@ -13,7 +13,7 @@ import {
   Avatar
 } from "@material-ui/core";
 import { authUser, unAuthUser } from "../store/actions/auth";
-import { gapiSignIn, gapiSignOut, gapiRevoke } from "../util/gabi";
+import { signIn, signOut, revokeAccess } from "../util/gabi";
 
 const useStyles = makeStyles({
   root: { flexGrow: 1 },
@@ -72,19 +72,16 @@ export default function NavBar() {
                 open={showMenu}
                 onClose={_handleClose}
               >
-                <MenuItem onClick={() => dispatch(unAuthUser(gapiSignOut))}>
+                <MenuItem onClick={() => dispatch(unAuthUser(signOut))}>
                   Sign Out
                 </MenuItem>
-                <MenuItem onClick={() => dispatch(unAuthUser(gapiRevoke))}>
+                <MenuItem onClick={() => dispatch(unAuthUser(revokeAccess))}>
                   Revoke Access
                 </MenuItem>
               </Menu>
             </div>
           ) : (
-            <Button
-              color="inherit"
-              onClick={() => dispatch(authUser(gapiSignIn))}
-            >
+            <Button color="inherit" onClick={() => dispatch(authUser(signIn))}>
               Login
             </Button>
           )}
