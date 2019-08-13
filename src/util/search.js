@@ -5,14 +5,14 @@ import { stripChannelSearch } from "./strippers";
 const halfURL = fetchURL("search");
 
 export const noOptionsMessage = ({ inputValue }) => {
-  if (inputValue.length < 4) return "Min. 4 characters needed";
+  if (inputValue.length < 3) return "Min. 3 characters needed";
   if (inputValue.length > 20) return "Max. 20 characters allowed";
   return "Channel Not Found";
 };
 
 export const loadMultiOptions = token =>
   debounce(async inputValue => {
-    if (inputValue.length < 4 || inputValue.length > 20) return;
+    if (inputValue.length < 3 || inputValue.length > 20) return;
     try {
       // https://developers.google.com/youtube/v3/docs/search/list#parameters
       const params = {

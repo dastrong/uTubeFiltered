@@ -133,8 +133,8 @@ export default function PlaylistCreate({ handleClose }) {
               isLoading ||
               channels.length === 0 ||
               query.length < 3 ||
-              title.length < 4 ||
-              query.length > 30 ||
+              title.length < 3 ||
+              query.length > 20 ||
               title.length > 15
             }
           >
