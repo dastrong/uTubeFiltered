@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import { loadClient } from "../util/gabi";
-import App from "../App";
+import App from "../components/App";
 
 const loaderStyles = {
   height: "100vh",
