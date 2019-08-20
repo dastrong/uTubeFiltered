@@ -1,10 +1,10 @@
 import React, { useLayoutEffect } from "react";
 import PropTypes from "prop-types";
 import PlayerListItem from "./PlayerListItem";
-import { setVideoId } from "../store/actions/player";
+import { plItemPlay } from "../store/actions/ids";
 
 export default function PlayerListItems(props) {
-  const { videos, deleteVid, storePatch, curVidId, curVidIdx } = props;
+  const { videos, deleteVid, storePatch, curPlItemId, curVidIdx } = props;
 
   useLayoutEffect(() => {
     document.querySelector("#items-holder").scrollTop = curVidIdx * 100;
@@ -12,15 +12,15 @@ export default function PlayerListItems(props) {
 
   return (
     <div id="items-holder" style={{ maxHeight: "500px", overflowY: "auto" }}>
-      {videos.map(({ videoId, videoTitle, thumbnail, playlistItemId }, i) => {
-        const isPlaying = videoId === curVidId;
+      {videos.map(({ videoTitle, thumbnail, playlistItemId }, i) => {
+        const isPlaying = playlistItemId === curPlItemId;
         return (
           <PlayerListItem
-            key={i + " listItem: " + videoId}
+            key={i + " listItem: " + playlistItemId}
             title={videoTitle}
             thumbnail={thumbnail}
             deleteVid={() => deleteVid(isPlaying, playlistItemId)}
-            playVid={() => storePatch(setVideoId(videoId))}
+            playVid={() => storePatch(plItemPlay(playlistItemId))}
             isPlaying={isPlaying}
           />
         );
@@ -33,6 +33,6 @@ PlayerListItems.propTypes = {
   videos: PropTypes.array.isRequired,
   deleteVid: PropTypes.func.isRequired,
   storePatch: PropTypes.func.isRequired,
-  curVidId: PropTypes.string.isRequired,
+  curPlItemId: PropTypes.string.isRequired,
   curVidIdx: PropTypes.number.isRequired
 };

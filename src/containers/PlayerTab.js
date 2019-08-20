@@ -5,11 +5,11 @@ import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import Player from "../components/Player";
 import PlayerInfo from "../components/PlayerInfo";
-import PlayerListHeader from "./PlayerListHeader";
+import PlayerListHeader from "../components/PlayerListHeader";
 import PlayerListItems from "../components/PlayerListItems";
 import { deletePlaylistItem } from "../store/actions/playlistItems";
-import { setVideoId, setPlaylistId } from "../store/actions/player";
-import { handleTabChange } from "../store/actions/ui";
+import { playlistPlay, plItemPlay } from "../store/actions/ids";
+import { setTab } from "../store/actions/ui";
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -19,25 +19,32 @@ const useStyles = makeStyles(theme => ({
   }
 }));
 
-const tokenSelector = state => state.currentUser.user.tokenAccess;
-const playerSelector = state => state.player;
 const playlistSelector = state => state.playlists;
+const idSelector = createSelector(
+  state => state.ids.playlist.playing,
+  state => state.ids.playlistItem.playing,
+  (playlistId, plItemId) => ({ playlistId, plItemId })
+);
 
 const optionsSelector = createSelector(
   playlistSelector,
-  playerSelector,
-  (playlists, { playlistId, currentVideoId, autoDelete }) => {
+  idSelector,
+  (playlists, { playlistId, plItemId }) => {
     const { title, items } = playlists.find(({ id }) => id === playlistId);
-    const curVidIdx = items.findIndex(item => item.videoId === currentVideoId);
+    const curVidIdx = items.findIndex(item => item.playlistItemId === plItemId);
     const video = items[curVidIdx];
-    return { title, items, playlistId, autoDelete, curVidIdx, video };
+    return { title, items, playlistId, curVidIdx, video };
   }
 );
 
+const tokenSelector = state => state.currentUser.user.tokenAccess;
+const autoDeleteSelector = state => state.ui.autoDelete;
+
 const getState = createSelector(
-  tokenSelector,
   optionsSelector,
-  (token, options) => ({ token, ...options })
+  tokenSelector,
+  autoDeleteSelector,
+  (options, token, autoDelete) => ({ ...options, token, autoDelete })
 );
 
 export default function PlayerTab() {
@@ -67,9 +74,9 @@ export default function PlayerTab() {
     storePatch(deletePlaylistItem(token, playlistItemId, playlistId));
     // go back to playlists tab and reset the player ids
     if (items.length === 1) {
-      storePatch(handleTabChange(1));
-      storePatch(setVideoId(null));
-      storePatch(setPlaylistId(null));
+      storePatch(setTab(1));
+      storePatch(plItemPlay(""));
+      storePatch(playlistPlay(""));
       return;
     }
     if (isPlaying) {
@@ -79,7 +86,7 @@ export default function PlayerTab() {
 
   function playNextVideo() {
     const nextVidId = _getNextVideoId(items, curVidIdx);
-    storePatch(setVideoId(nextVidId));
+    storePatch(plItemPlay(nextVidId));
   }
 
   return (
@@ -104,7 +111,7 @@ export default function PlayerTab() {
           videos={items}
           deleteVid={deleteVideo}
           storePatch={storePatch}
-          curVidId={videoId}
+          curPlItemId={playlistItemId}
           curVidIdx={curVidIdx}
         />
       </Grid>
@@ -114,6 +121,6 @@ export default function PlayerTab() {
 
 function _getNextVideoId(items, curVidIdx) {
   return items.length - 1 === curVidIdx
-    ? items[0].videoId
-    : items[curVidIdx + 1].videoId;
+    ? items[0].playlistItemId
+    : items[curVidIdx + 1].playlistItemId;
 }

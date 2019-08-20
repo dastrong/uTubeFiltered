@@ -1,5 +1,5 @@
 import { authUser } from "../store/actions/auth";
-import { handleClient } from "../store/actions/ui";
+import { setClient } from "../store/actions/ui";
 
 const clientId = process.env.REACT_APP_CLIENT_ID;
 const scope = "https://www.googleapis.com/auth/youtube";
@@ -19,7 +19,7 @@ function loadClient(dispatch) {
         dispatch(authUser(getUserInfo));
       }
       // remove the loading icon
-      dispatch(handleClient());
+      dispatch(setClient());
     });
   });
 }

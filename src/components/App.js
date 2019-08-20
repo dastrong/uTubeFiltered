@@ -1,12 +1,14 @@
 import React from "react";
 import NavBar from "../containers/NavBar";
-import NavSub from "../containers/NavSub";
+import TabBar from "../containers/TabBar";
+import TabContent from "../containers/TabContent";
 import SnackBar from "../containers/SnackBar";
 
 const App = () => (
   <>
     <NavBar />
-    <NavSub />
+    <TabBar />
+    <TabContent />
     <SnackBar />
   </>
 );

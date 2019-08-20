@@ -1,5 +1,5 @@
-import React from "react";
-import PropTypes from "prop-types";
+import React, { useCallback } from "react";
+import { useSelector, useDispatch } from "react-redux";
 import { makeStyles, useTheme } from "@material-ui/core/styles";
 import { Tabs, Tab, Paper, Badge, useMediaQuery } from "@material-ui/core/";
 import TvIcon from "@material-ui/icons/LiveTv";
@@ -7,7 +7,9 @@ import HelpIcon from "@material-ui/icons/Help";
 import InfoIcon from "@material-ui/icons/Info";
 import SubsIcon from "@material-ui/icons/Subscriptions";
 import PlaylistIcon from "@material-ui/icons/PlaylistPlay";
-import ToolTip from "./ToolTip";
+import ToolTip from "../components/ToolTip";
+import usePlUpdateNotifier from "../hooks/usePlUpdateNotifier";
+import { setTab } from "../store/actions/ui";
 
 const useStyles = makeStyles({
   root: {
@@ -34,22 +36,39 @@ const TabWithToolTip = ({ className, title, disabled, children, ...rest }) => (
   />
 );
 
-export default function NavTabs({
-  value,
-  handleChange,
-  isAuthenticated,
-  isPlayerActive,
-  plUpdAvail
-}) {
+const getState = state => ({
+  value: state.ui.tabValue,
+  playlists: state.playlists,
+  updateAvailCount: state.ui.updateAvailCount,
+  isAuthenticated: state.currentUser.isAuthenticated,
+  isPlayerActive: !!state.ids.playlist.playing
+});
+
+export default function TabBar() {
   const classes = useStyles();
+  const dispatch = useDispatch();
+  const {
+    value,
+    playlists,
+    isAuthenticated,
+    isPlayerActive,
+    updateAvailCount
+  } = useSelector(getState);
+  // automatically updates our updated available badge
+  usePlUpdateNotifier(playlists);
+
   const theme = useTheme();
   const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
+
+  const _handleChange = useCallback((e, value) => dispatch(setTab(value)), [
+    dispatch
+  ]);
 
   return (
     <Paper square className={isMobile ? classes.root : ""}>
       <Tabs
         value={value}
-        onChange={handleChange}
+        onChange={_handleChange}
         centered
         indicatorColor="primary"
         textColor="primary"
@@ -62,8 +81,8 @@ export default function NavTabs({
         >
           <Badge
             color="secondary"
-            badgeContent={plUpdAvail}
-            invisible={!plUpdAvail}
+            badgeContent={updateAvailCount}
+            invisible={!updateAvailCount}
           >
             <PlaylistIcon />
           </Badge>
@@ -93,11 +112,3 @@ export default function NavTabs({
     </Paper>
   );
 }
-
-NavTabs.propTypes = {
-  value: PropTypes.number.isRequired,
-  handleChange: PropTypes.func.isRequired,
-  isAuthenticated: PropTypes.bool.isRequired,
-  isPlayerActive: PropTypes.bool.isRequired,
-  plUpdAvail: PropTypes.number.isRequired
-};

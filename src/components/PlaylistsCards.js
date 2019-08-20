@@ -1,14 +1,11 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { makeStyles } from "@material-ui/styles";
-import { Zoom, Typography } from "@material-ui/core";
+import { Zoom, Typography, CircularProgress } from "@material-ui/core";
 import PlaylistCard from "../components/PlaylistCard";
 import { updatePlaylistItems } from "../store/actions/playlistItems";
-import {
-  handleTabChange,
-  minusPlaylistsUpdateBadge
-} from "../store/actions/ui";
-import { setPlaylistId, setVideoId } from "../store/actions/player";
+import { setTab, decrPlUpdBadge } from "../store/actions/ui";
+import { playlistPlay, plItemPlay } from "../store/actions/ids";
 
 const blankThumbnail = "https://s.ytimg.com/yts/img/no_thumbnail-vfl4t3-4R.jpg";
 
@@ -21,18 +18,25 @@ const useStyles = makeStyles({
 });
 
 export default function PlaylistsCards(props) {
-  const { storePatch, statePatch, playlists, token, sorter } = props;
+  const {
+    storePatch,
+    statePatch,
+    playlists,
+    token,
+    arePlLoading,
+    sorter
+  } = props;
   const classes = useStyles();
   const isPlaylistFound = !!playlists.length;
   const dateNow = Date.now();
 
   // fires when a user clicks the play button
   const watchPL = useCallback(
-    (playlistId, firstVideoId) => {
+    (playlistId, firstItemId) => {
       // go to player tab and set the playlistId and first videoId in the store
-      storePatch(handleTabChange(2));
-      storePatch(setPlaylistId(playlistId));
-      storePatch(setVideoId(firstVideoId));
+      storePatch(setTab(2));
+      storePatch(playlistPlay(playlistId));
+      storePatch(plItemPlay(firstItemId));
     },
     [storePatch]
   );
@@ -41,10 +45,12 @@ export default function PlaylistsCards(props) {
   const refreshPL = useCallback(
     (id, tags, title) => {
       storePatch(updatePlaylistItems(token, id, tags, title));
-      storePatch(minusPlaylistsUpdateBadge());
+      storePatch(decrPlUpdBadge());
     },
     [storePatch, token]
   );
+
+  if (arePlLoading) return <CircularProgress />;
 
   if (!isPlaylistFound) {
     return (
@@ -54,9 +60,9 @@ export default function PlaylistsCards(props) {
     );
   }
 
-  return playlists.map(({ id, tags, items, title, fetchingItems }, i) => {
+  return playlists.map(({ id, tags, items, title }, i) => {
     const videoCount = items.length;
-    const firstVideoId = !!videoCount ? items[0].videoId : "";
+    const firstItemId = !!videoCount ? items[0].playlistItemId : "";
     const thumbnail = videoCount ? items[0].thumbnail : blankThumbnail;
     return (
       <Zoom
@@ -71,8 +77,7 @@ export default function PlaylistsCards(props) {
           dateNow={dateNow}
           thumbnail={thumbnail}
           videoCount={videoCount}
-          firstVideoId={firstVideoId}
-          fetchingItems={fetchingItems}
+          firstItemId={firstItemId}
           statePatch={statePatch}
           storePatch={storePatch}
           watchPL={watchPL}
@@ -88,5 +93,6 @@ PlaylistsCards.propTypes = {
   storePatch: PropTypes.func.isRequired,
   playlists: PropTypes.array.isRequired,
   token: PropTypes.string.isRequired,
-  sorter: PropTypes.string.isRequired
+  sorter: PropTypes.string.isRequired,
+  arePlLoading: PropTypes.bool.isRequired
 };

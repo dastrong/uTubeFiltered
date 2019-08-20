@@ -17,7 +17,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
 import NotInterested from "@material-ui/icons/NotInterestedRounded";
 import ToolTip from "./ToolTip";
-import { plusPlaylistsUpdateBadge } from "../store/actions/ui";
+import { incrPlUpdBadge } from "../store/actions/ui";
 
 const useStyles = makeStyles(theme => ({
   item: {
@@ -99,7 +99,7 @@ export default function PlaylistCard({
   dateNow,
   thumbnail,
   videoCount,
-  firstVideoId,
+  firstItemId,
   fetchingItems,
   statePatch,
   storePatch,
@@ -114,7 +114,7 @@ export default function PlaylistCard({
 
   function setUpdateAvailable() {
     setIsUpdateAvailable(true);
-    storePatch(plusPlaylistsUpdateBadge());
+    storePatch(incrPlUpdBadge());
   }
 
   return (
@@ -160,7 +160,7 @@ export default function PlaylistCard({
                 <IconButton
                   aria-label="Play"
                   disabled={!videoCount}
-                  onClick={() => watchPL(id, firstVideoId)}
+                  onClick={() => watchPL(id, firstItemId)}
                 >
                   <PlayIcon className={classes.playIcon} />
                 </IconButton>
@@ -220,8 +220,7 @@ PlaylistCard.propTypes = {
   dateNow: PropTypes.number.isRequired,
   thumbnail: PropTypes.string.isRequired,
   videoCount: PropTypes.number.isRequired,
-  firstVideoId: PropTypes.string.isRequired,
-  fetchingItems: PropTypes.bool.isRequired,
+  firstItemId: PropTypes.string.isRequired,
   statePatch: PropTypes.func.isRequired,
   storePatch: PropTypes.func.isRequired,
   watchPL: PropTypes.func.isRequired,

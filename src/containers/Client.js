@@ -1,8 +1,9 @@
 import React, { useEffect } from "react";
 import { useSelector, useDispatch } from "react-redux";
 import CircularProgress from "@material-ui/core/CircularProgress";
-import { loadClient } from "../util/gabi";
 import App from "../components/App";
+import QuotaFullPage from "../components/QuotaFullPage";
+import { loadClient } from "../util/gabi";
 
 const loaderStyles = {
   height: "100vh",
@@ -13,16 +14,24 @@ const loaderStyles = {
   position: "absolute"
 };
 
+const getState = state => ({
+  isClientLoaded: state.ui.isClientLoaded,
+  isQuotaFull: state.ui.isQuotaFull
+});
+
 // loads youtube client and updates UI when it's ready
 export default function Client() {
   const dispatch = useDispatch();
-  const isClientLoaded = useSelector(state => state.ui.isClientLoaded);
+  const state = useSelector(getState);
+  const { isClientLoaded, isQuotaFull } = state;
 
   useEffect(() => {
     loadClient(dispatch);
   }, [dispatch]);
 
-  return isClientLoaded ? (
+  return isQuotaFull ? (
+    <QuotaFullPage />
+  ) : isClientLoaded ? (
     <App />
   ) : (
     <div style={loaderStyles}>

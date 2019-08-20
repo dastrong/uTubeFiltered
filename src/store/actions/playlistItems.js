@@ -1,8 +1,4 @@
-import {
-  GET_PLAYLIST_ITEMS,
-  FETCHING_PLAYLIST_ITEMS,
-  DELETE_PLAYLIST_ITEM
-} from "../actionTypes";
+import { GET_PLAYLIST_ITEMS, DELETE_PLAYLIST_ITEM } from "../actionTypes";
 import {
   fetchURL,
   apiRequest,
@@ -10,17 +6,18 @@ import {
   description
 } from "../../util/helpers";
 import { stripPlaylistItem } from "../../util/strippers";
-import { handlePlaylistMsg } from "./ui";
 import { updatePlaylist } from "./playlists";
+import { showSnackBar } from "./snacks";
+import {
+  playlistUpdate,
+  playlistClear,
+  plItemDelete,
+  plItemClear
+} from "./ids";
 
 const halfItemsURL = fetchURL("playlistItems");
 const halfSearchURL = fetchURL("search");
 const halfVideosURL = fetchURL("videos");
-
-export const fetchingPlaylistItems = id => ({
-  type: FETCHING_PLAYLIST_ITEMS,
-  id
-});
 
 export const handlePlaylistItems = (id, items) => ({
   type: GET_PLAYLIST_ITEMS,
@@ -76,7 +73,7 @@ export function getPlaylistItems(token, playlistId) {
       dispatch(handlePlaylistItems(playlistId, strippedItems));
     } catch (err) {
       console.log(err);
-      dispatch(handlePlaylistMsg(true, err));
+      dispatch(showSnackBar("error", "Error getting playlist videos."));
     }
   };
 }
@@ -85,10 +82,10 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
   return async dispatch => {
     try {
       // update ui to show we're processing the update
-      dispatch(fetchingPlaylistItems(playlistId));
+      dispatch(playlistUpdate(playlistId));
+      // dispatch(fetchingPlaylistItems(playlistId));
       // everything we need is kept in the playlist tags
       const { channels, query, lastUpdate } = tags;
-      console.log(channels);
       // search for video with the following params
       const dateNow = Date.now();
       const oneDay = 86400000;
@@ -138,10 +135,12 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
       }
       // updates playlist so thumbnail updates
       dispatch(getPlaylistItems(token, playlistId));
+      dispatch(playlistClear("updating"));
+      dispatch(showSnackBar("success", "Playlist Updated"));
     } catch (err) {
       console.log(err);
-      // dispatch(fetchingPlaylistItems(playlistId));
-      dispatch(handlePlaylistMsg(true, err));
+      dispatch(playlistClear("updating"));
+      dispatch(showSnackBar("success", "Error updating playlist videos."));
     }
   };
 }
@@ -149,12 +148,16 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 export function deletePlaylistItem(token, playlistItemId, playlistId) {
   return async dispatch => {
     try {
+      dispatch(plItemDelete(playlistItemId));
       // https://developers.google.com/youtube/v3/docs/playlistItems/delete#parameters
       await apiRequest("DELETE", halfItemsURL, token, { id: playlistItemId });
       dispatch(handleItemDelete(playlistItemId, playlistId));
+      dispatch(plItemClear("deleting"));
+      dispatch(showSnackBar("success", "Playlist video deleted."));
     } catch (err) {
       console.log(err);
-      dispatch(handlePlaylistMsg(true, err));
+      dispatch(plItemClear("deleting"));
+      dispatch(showSnackBar("error", "Error deleting playlist video."));
     }
   };
 }

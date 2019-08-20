@@ -1,17 +1,17 @@
 import { combineReducers } from "redux";
 import currentUser from "./currentUser";
+import ids from "./ids";
 import playlists from "./playlists";
-import ui from "./ui";
-import player from "./player";
 import snacks from "./snacks";
+import ui from "./ui";
 import { LOGOUT_USER } from "../actionTypes";
 
 const appReducer = combineReducers({
   currentUser,
+  ids,
   playlists,
-  ui,
-  player,
-  snacks
+  snacks,
+  ui
 });
 
 const rootReducer = (state, action) => {

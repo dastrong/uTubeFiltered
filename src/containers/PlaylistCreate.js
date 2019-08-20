@@ -1,4 +1,4 @@
-import React, { useReducer, useCallback } from "react";
+import React, { useReducer } from "react";
 import PropTypes from "prop-types";
 import { useDispatch, useSelector } from "react-redux";
 import { makeStyles } from "@material-ui/core/styles";
@@ -8,18 +8,14 @@ import {
   Toolbar,
   Typography,
   IconButton,
-  Dialog,
   DialogContent,
   DialogActions,
-  DialogContentText,
-  CircularProgress
+  DialogContentText
 } from "@material-ui/core";
 import CloseIcon from "@material-ui/icons/Close";
 import PlaylistForm from "../components/PlaylistForm";
-import DialogBasicInner from "../components/DialogBasicInner";
 import { description, formTagParams } from "../util/helpers";
 import { createPlaylist } from "../store/actions/playlists";
-import { handlePlaylistLoad, handlePlaylistMsg } from "../store/actions/ui";
 
 const useStyles = makeStyles({
   flex: {
@@ -52,13 +48,6 @@ const useStyles = makeStyles({
   }
 });
 
-const getState = state => ({
-  token: state.currentUser.user.tokenAccess,
-  isLoading: state.ui.playlists.isLoading,
-  isError: state.ui.playlists.isError,
-  message: state.ui.playlists.message
-});
-
 const initialState = { channels: [], query: "", title: "" };
 
 const reducer = (state, action) => {
@@ -66,33 +55,22 @@ const reducer = (state, action) => {
   if (type === "Channels") return { ...state, channels };
   if (type === "Query") return { ...state, query };
   if (type === "Title") return { ...state, title };
-  if (type === "Reset") return initialState;
   return state;
 };
 
 export default function PlaylistCreate({ handleClose }) {
   const classes = useStyles();
   const storePatch = useDispatch();
-  const { token, isLoading, isError, message } = useSelector(getState);
+  const token = useSelector(state => state.currentUser.user.tokenAccess);
   const [state, formPatch] = useReducer(reducer, initialState);
   const { channels, query, title } = state;
 
   function handleSubmit() {
-    storePatch(handlePlaylistLoad(true));
     const channelIds = channels.map(item => item.value);
     const tags = formTagParams(channelIds, query);
     storePatch(createPlaylist(token, { title, description, tags }));
-  }
-
-  const reset = useCallback(() => {
-    formPatch({ type: "Reset" });
-    storePatch(handlePlaylistMsg());
-  }, [storePatch]);
-
-  const closeBothDialogs = useCallback(() => {
     handleClose();
-    storePatch(handlePlaylistMsg());
-  }, [handleClose, storePatch]);
+  }
 
   return (
     <>
@@ -130,7 +108,6 @@ export default function PlaylistCreate({ handleClose }) {
             onClick={handleSubmit}
             className={classes.actBtns}
             disabled={
-              isLoading ||
               channels.length === 0 ||
               query.length < 3 ||
               title.length < 3 ||
@@ -140,33 +117,8 @@ export default function PlaylistCreate({ handleClose }) {
           >
             Create
           </Button>
-          {isLoading && (
-            <CircularProgress size={24} className={classes.buttonProgress} />
-          )}
         </div>
       </DialogActions>
-
-      <Dialog
-        open={!!message}
-        fullWidth
-        onClose={handlePlaylistMsg}
-        aria-labelledby="create-playlist-title"
-        aria-describedby="create-playlist-text"
-      >
-        <DialogBasicInner
-          name="create-playlist"
-          title={
-            isError
-              ? "Sorry, something went wrong"
-              : "Successfully created playlist"
-          }
-          msg={message || ""}
-          negText={isError ? "Go back." : "No, thanks."}
-          posText={isError ? "Try again?" : "Yes, please."}
-          negFunc={closeBothDialogs}
-          posFunc={reset}
-        />
-      </Dialog>
     </>
   );
 }

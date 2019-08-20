@@ -4,7 +4,6 @@ import {
   DELETE_PLAYLIST,
   UPDATE_PLAYLIST,
   GET_PLAYLIST_ITEMS,
-  FETCHING_PLAYLIST_ITEMS,
   DELETE_PLAYLIST_ITEM
 } from "../actionTypes";
 
@@ -38,9 +37,7 @@ export default (state = [], action) => {
       );
     case GET_PLAYLIST_ITEMS:
       return state.map(playlist =>
-        playlist.id === id
-          ? { ...playlist, fetchingItems: false, items }
-          : playlist
+        playlist.id === id ? { ...playlist, items } : playlist
       );
     case DELETE_PLAYLIST_ITEM:
       return state.map(playlist =>
@@ -53,10 +50,6 @@ export default (state = [], action) => {
               )
             }
           : playlist
-      );
-    case FETCHING_PLAYLIST_ITEMS:
-      return state.map(playlist =>
-        playlist.id === id ? { ...playlist, fetchingItems: true } : playlist
       );
     default:
       return state;

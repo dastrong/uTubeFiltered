@@ -1,69 +1,42 @@
 import {
-	CHANGE_TAB,
-	CLIENT_LOADED,
-	PLAYLIST_LOADER,
-	PLAYLIST_MESSAGE,
-	PLAYLIST_UPDATE_BADGE,
-	PLAYLIST_UPDATE_BADGE_PLUS,
-	PLAYLIST_UPDATE_BADGE_MINUS,
+  CHANGE_TAB,
+  CLIENT_LOADED,
+  TOGGLE_AUTO_DELETE,
+  PLAYLISTS_LOADER,
+  PLAYLISTS_UPDATE_BADGE,
+  PLAYLISTS_UPDATE_BADGE_PLUS,
+  PLAYLISTS_UPDATE_BADGE_MINUS
 } from "../actionTypes";
 
 const initialState = {
-	isClientLoaded: false,
-	tabValue: 0,
-	playlists: {
-		isLoading: true,
-		isError: null,
-		message: null,
-		updateAvailCount: 0,
-	},
+  isClientLoaded: false,
+  // add me
+  isQuotaFull: false,
+  autoDelete: true,
+  arePlLoading: true,
+  tabValue: 0,
+  updateAvailCount: 0
 };
 
 export default (state = initialState, action) => {
-	const { type, value, isLoading, isError, message } = action;
-	switch (type) {
-		case CHANGE_TAB:
-			return {
-				...state,
-				tabValue: value,
-			};
-		case CLIENT_LOADED:
-			return {
-				...state,
-				isClientLoaded: true,
-			};
-		case PLAYLIST_LOADER:
-			return {
-				...state,
-				playlists: { ...state.playlists, isLoading },
-			};
-		case PLAYLIST_MESSAGE:
-			return {
-				...state,
-				playlists: { ...state.playlists, isError, message },
-			};
-		case PLAYLIST_UPDATE_BADGE:
-			return {
-				...state,
-				playlists: { ...state.playlists, updateAvailCount: value },
-			};
-		case PLAYLIST_UPDATE_BADGE_PLUS:
-			return {
-				...state,
-				playlists: {
-					...state.playlists,
-					updateAvailCount: state.playlists.updateAvailCount + 1,
-				},
-			};
-		case PLAYLIST_UPDATE_BADGE_MINUS:
-			return {
-				...state,
-				playlists: {
-					...state.playlists,
-					updateAvailCount: state.playlists.updateAvailCount - 1,
-				},
-			};
-		default:
-			return state;
-	}
+  const { type, value, arePlLoading } = action;
+  const { updateAvailCount, autoDelete } = state;
+  switch (type) {
+    case CLIENT_LOADED:
+      return { ...state, isClientLoaded: true };
+    case CHANGE_TAB:
+      return { ...state, tabValue: value };
+    case TOGGLE_AUTO_DELETE:
+      return { ...state, autoDelete: !autoDelete };
+    case PLAYLISTS_LOADER:
+      return { ...state, arePlLoading };
+    case PLAYLISTS_UPDATE_BADGE:
+      return { ...state, updateAvailCount: value };
+    case PLAYLISTS_UPDATE_BADGE_PLUS:
+      return { ...state, updateAvailCount: updateAvailCount + 1 };
+    case PLAYLISTS_UPDATE_BADGE_MINUS:
+      return { ...state, updateAvailCount: updateAvailCount - 1 };
+    default:
+      return state;
+  }
 };

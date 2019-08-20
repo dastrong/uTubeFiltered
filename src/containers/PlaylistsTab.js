@@ -10,7 +10,7 @@ import DialogDeletePlaylist from "../components/DialogDeletePlaylist";
 import DialogCreatePlaylist from "../components/DialogCreatePlaylist";
 import useSort from "../hooks/useSort";
 import { deletePlaylist } from "../store/actions/playlists";
-import { minusPlaylistsUpdateBadge } from "../store/actions/ui";
+import { decrPlUpdBadge } from "../store/actions/ui";
 
 const useStyles = makeStyles(theme => ({
   container: {
@@ -23,11 +23,13 @@ const useStyles = makeStyles(theme => ({
 
 const playlistSelector = state => state.playlists;
 const tokenSelector = state => state.currentUser.user.tokenAccess;
+const loaderSelector = state => state.ui.arePlLoading;
 
 const getState = createSelector(
   playlistSelector,
   tokenSelector,
-  (playlists, token) => ({ playlists, token })
+  loaderSelector,
+  (playlists, token, arePlLoading) => ({ playlists, token, arePlLoading })
 );
 
 const deleteVals = {
@@ -56,7 +58,7 @@ const reducer = (state, action) => {
 export default function PlaylistsTab() {
   const classes = useStyles();
   const storePatch = useDispatch();
-  const { playlists, token } = useSelector(getState);
+  const { playlists, token, arePlLoading } = useSelector(getState);
 
   const [state, statePatch] = useReducer(reducer, initialState);
   const {
@@ -85,7 +87,7 @@ export default function PlaylistsTab() {
     // if the playlist isn't available for an update stop here
     if (!shouldBadgeUpdate) return;
     // if it does have an updateAvailable, remove it from our badge count
-    storePatch(minusPlaylistsUpdateBadge());
+    storePatch(decrPlUpdBadge());
   }
 
   return (
@@ -98,6 +100,7 @@ export default function PlaylistsTab() {
         storePatch={storePatch}
         playlists={sortedPlaylists}
         token={token}
+        arePlLoading={arePlLoading}
         statePatch={statePatch}
         sorter={sortBy + order}
       />
