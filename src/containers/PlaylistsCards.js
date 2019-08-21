@@ -23,18 +23,28 @@ const useStyles = makeStyles({
 
 const playlistSelector = state => state.playlists;
 const loaderSelector = state => state.ui.arePlLoading;
+const idsSelector = state => state.ids.playlist;
 
 const getState = createSelector(
   playlistSelector,
   loaderSelector,
-  (playlists, arePlLoading) => ({ playlists, arePlLoading })
+  idsSelector,
+  (playlists, arePlLoading, { deleting, updating }) => ({
+    playlists,
+    arePlLoading,
+    deleting,
+    updating
+  })
 );
 
 export default function PlaylistsCards(props) {
   const { storePatch, statePatch, token, sortBy, order } = props;
 
   const classes = useStyles();
-  const { playlists, arePlLoading } = useSelector(getState, shallowEqual);
+  const { playlists, arePlLoading, deleting, updating } = useSelector(
+    getState,
+    shallowEqual
+  );
   const sortedPlaylists = useSort(playlists, sortBy, order);
 
   const isPlaylistFound = !!sortedPlaylists.length;
@@ -74,6 +84,8 @@ export default function PlaylistsCards(props) {
     const videoCount = items.length;
     const firstItemId = !!videoCount ? items[0].playlistItemId : "";
     const thumbnail = videoCount ? items[0].thumbnail : blankThumbnail;
+    const isDeleting = deleting === id;
+    const isUpdating = updating === id;
     return (
       <Zoom
         key={id + sortBy + order + i}
@@ -88,6 +100,8 @@ export default function PlaylistsCards(props) {
           thumbnail={thumbnail}
           videoCount={videoCount}
           firstItemId={firstItemId}
+          isDeleting={isDeleting}
+          isUpdating={isUpdating}
           statePatch={statePatch}
           storePatch={storePatch}
           watchPL={watchPL}

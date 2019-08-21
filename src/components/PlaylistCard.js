@@ -65,7 +65,7 @@ const useStyles = makeStyles(theme => ({
     height: 22,
     width: 22
   },
-  updating: { position: "absolute" },
+  loader: { position: "absolute" },
   badge: {
     right: 0,
     top: 0,
@@ -91,6 +91,14 @@ const CountdownText = ({ hours, minutes, seconds, completed }) => `
     }
 `;
 
+// adds a spinner for update/delete buttons
+const IconWithSpin = ({ CXspinner, spin, children }) => (
+  <>
+    {children}
+    {spin && <CircularProgress className={CXspinner} />}
+  </>
+);
+
 export default function PlaylistCard({
   id,
   title,
@@ -99,7 +107,8 @@ export default function PlaylistCard({
   thumbnail,
   videoCount,
   firstItemId,
-  fetchingItems,
+  isDeleting,
+  isUpdating,
   statePatch,
   storePatch,
   watchPL,
@@ -143,12 +152,9 @@ export default function PlaylistCard({
                       className={classes.otherIcons}
                     />
                   ) : (
-                    <>
+                    <IconWithSpin CXspinner={classes.loader} spin={isUpdating}>
                       <RefreshIcon className={classes.otherIcons} />
-                      {fetchingItems && (
-                        <CircularProgress className={classes.updating} />
-                      )}
-                    </>
+                    </IconWithSpin>
                   )}
                 </IconButton>
               </ToolTip>
@@ -171,7 +177,9 @@ export default function PlaylistCard({
                   })
                 }
               >
-                <DeleteIcon className={classes.otherIcons} />
+                <IconWithSpin CXspinner={classes.loader} spin={isDeleting}>
+                  <DeleteIcon className={classes.otherIcons} />
+                </IconWithSpin>
               </IconButton>
             </div>
             <CardContent className={classes.date}>
@@ -217,6 +225,8 @@ PlaylistCard.propTypes = {
   thumbnail: PropTypes.string.isRequired,
   videoCount: PropTypes.number.isRequired,
   firstItemId: PropTypes.string.isRequired,
+  isDeleting: PropTypes.bool.isRequired,
+  isUpdating: PropTypes.bool.isRequired,
   statePatch: PropTypes.func.isRequired,
   storePatch: PropTypes.func.isRequired,
   watchPL: PropTypes.func.isRequired,
