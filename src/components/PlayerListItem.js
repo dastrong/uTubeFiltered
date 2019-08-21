@@ -12,6 +12,7 @@ import {
 } from "@material-ui/core";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
 import PlayIcon from "@material-ui/icons/PlayArrow";
+import IconWithSpin from "./IconWithSpin";
 
 const opa8 = { opacity: 0.8 };
 
@@ -61,7 +62,7 @@ const useStyles = makeStyles({
 });
 
 export default function PlayerListItem(props) {
-  const { title, thumbnail, isPlaying, deleteVid, playVid } = props;
+  const { title, thumbnail, isPlaying, deleteVid, playVid, isDeleting } = props;
   const classes = useStyles();
   const active = isPlaying ? classes.active : "";
   const cxPlayIcon = clsx(classes.playIcon, active);
@@ -90,7 +91,9 @@ export default function PlayerListItem(props) {
           aria-label="Delete"
           onClick={deleteVid}
         >
-          <DeleteIcon />
+          <IconWithSpin spin={isDeleting}>
+            <DeleteIcon />
+          </IconWithSpin>
         </IconButton>
       </Card>
     </Grid>
@@ -102,5 +105,6 @@ PlayerListItem.propTypes = {
   thumbnail: PropTypes.string.isRequired,
   isPlaying: PropTypes.bool.isRequired,
   deleteVid: PropTypes.func.isRequired,
-  playVid: PropTypes.func.isRequired
+  playVid: PropTypes.func.isRequired,
+  isDeleting: PropTypes.bool.isRequired
 };

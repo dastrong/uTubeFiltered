@@ -4,7 +4,14 @@ import PlayerListItem from "./PlayerListItem";
 import { plItemPlay } from "../store/actions/ids";
 
 export default function PlayerListItems(props) {
-  const { videos, deleteVid, storePatch, curPlItemId, curVidIdx } = props;
+  const {
+    videos,
+    deleteVid,
+    storePatch,
+    curPlItemId,
+    curVidIdx,
+    deletingId
+  } = props;
 
   useLayoutEffect(() => {
     document.querySelector("#items-holder").scrollTop = curVidIdx * 100;
@@ -14,6 +21,7 @@ export default function PlayerListItems(props) {
     <div id="items-holder" style={{ maxHeight: "500px", overflowY: "auto" }}>
       {videos.map(({ videoTitle, thumbnail, playlistItemId }, i) => {
         const isPlaying = playlistItemId === curPlItemId;
+        const isDeleting = playlistItemId === deletingId;
         return (
           <PlayerListItem
             key={i + " listItem: " + playlistItemId}
@@ -22,6 +30,7 @@ export default function PlayerListItems(props) {
             deleteVid={() => deleteVid(isPlaying, playlistItemId)}
             playVid={() => storePatch(plItemPlay(playlistItemId))}
             isPlaying={isPlaying}
+            isDeleting={isDeleting}
           />
         );
       })}
@@ -34,5 +43,6 @@ PlayerListItems.propTypes = {
   deleteVid: PropTypes.func.isRequired,
   storePatch: PropTypes.func.isRequired,
   curPlItemId: PropTypes.string.isRequired,
-  curVidIdx: PropTypes.number.isRequired
+  curVidIdx: PropTypes.number.isRequired,
+  isDeleting: PropTypes.bool.isRequired
 };

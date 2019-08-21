@@ -22,18 +22,22 @@ const useStyles = makeStyles(theme => ({
 const playlistSelector = state => state.playlists;
 const idSelector = createSelector(
   state => state.ids.playlist.playing,
-  state => state.ids.playlistItem.playing,
-  (playlistId, plItemId) => ({ playlistId, plItemId })
+  state => state.ids.playlistItem,
+  (playlistId, { playing, deleting }) => ({
+    playlistId,
+    plItemId: playing,
+    deletingId: deleting
+  })
 );
 
 const optionsSelector = createSelector(
   playlistSelector,
   idSelector,
-  (playlists, { playlistId, plItemId }) => {
+  (playlists, { playlistId, plItemId, deletingId }) => {
     const { title, items } = playlists.find(({ id }) => id === playlistId);
     const curVidIdx = items.findIndex(item => item.playlistItemId === plItemId);
     const video = items[curVidIdx];
-    return { title, items, playlistId, curVidIdx, video };
+    return { title, items, playlistId, curVidIdx, video, deletingId };
   }
 );
 
@@ -58,7 +62,8 @@ export default function PlayerTab() {
     playlistId,
     autoDelete,
     curVidIdx,
-    video
+    video,
+    deletingId
   } = state;
   const { playlistItemId, videoId } = video;
 
@@ -113,6 +118,7 @@ export default function PlayerTab() {
           storePatch={storePatch}
           curPlItemId={playlistItemId}
           curVidIdx={curVidIdx}
+          deletingId={deletingId}
         />
       </Grid>
     </Grid>
