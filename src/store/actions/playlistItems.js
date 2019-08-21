@@ -83,7 +83,6 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
     try {
       // update ui to show we're processing the update
       dispatch(playlistUpdate(playlistId));
-      // dispatch(fetchingPlaylistItems(playlistId));
       // everything we need is kept in the playlist tags
       const { channels, query, lastUpdate } = tags;
       // search for video with the following params
@@ -133,7 +132,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
           })
         );
       }
-      // updates playlist so thumbnail updates
+      // get all playlist items again
       dispatch(getPlaylistItems(token, playlistId));
       dispatch(playlistClear("updating"));
       dispatch(showSnackBar("success", "Playlist Updated"));
@@ -165,15 +164,12 @@ export function deletePlaylistItem(token, playlistItemId, playlistId) {
 // used to combat this issue: https://issuetracker.google.com/issues/35173743
 // TLDR need to process request sequentially for 100% POST accuracy
 async function insertPlaylistItems(token, playlistId, videoIds) {
-  console.log(videoIds);
   for (const videoId of videoIds) {
-    console.log(videoId);
     const resourceId = { videoId, kind: "youtube#video" };
     const body = JSON.stringify({ snippet: { playlistId, resourceId } });
     // https://developers.google.com/youtube/v3/docs/playlistItems/list#parameters
     const params = { part: "snippet" };
     await apiRequest("POST", halfItemsURL, token, params, body);
-    console.log("inserting item complete");
     // throws an error if unsuccessful, but we won't
     // return anything here because getting all playlist
     // items is only worth 1 quota
