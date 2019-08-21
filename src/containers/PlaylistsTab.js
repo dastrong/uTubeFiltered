@@ -1,42 +1,20 @@
 import React, { useReducer, useCallback, useLayoutEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { createSelector } from "reselect";
-import { makeStyles } from "@material-ui/core/styles";
 import { Grid } from "@material-ui/core/";
 import PlaylistCreateIcon from "../components/PlaylistCreateIcon";
+import PlaylistsCards from "./PlaylistsCards";
 import PlaylistsSortIcons from "../components/PlaylistsSortIcons";
-import PlaylistsCards from "../components/PlaylistsCards";
 import DialogDeletePlaylist from "../components/DialogDeletePlaylist";
 import DialogCreatePlaylist from "../components/DialogCreatePlaylist";
-import useSort from "../hooks/useSort";
 import { deletePlaylist } from "../store/actions/playlists";
 import { decrPlUpdBadge } from "../store/actions/ui";
-
-const useStyles = makeStyles(theme => ({
-  container: {
-    padding: 10,
-    [theme.breakpoints.down("xs")]: {
-      marginBottom: 48
-    }
-  }
-}));
-
-const playlistSelector = state => state.playlists;
-const tokenSelector = state => state.currentUser.user.tokenAccess;
-const loaderSelector = state => state.ui.arePlLoading;
-
-const getState = createSelector(
-  playlistSelector,
-  tokenSelector,
-  loaderSelector,
-  (playlists, token, arePlLoading) => ({ playlists, token, arePlLoading })
-);
 
 const deleteVals = {
   deleteOpen: false,
   deleteId: null,
   shouldBadgeUpdate: false
 };
+
 const initialState = {
   sortBy: "LastUpdate",
   order: "ascending",
@@ -56,25 +34,18 @@ const reducer = (state, action) => {
 };
 
 export default function PlaylistsTab() {
-  const classes = useStyles();
   const storePatch = useDispatch();
-  const { playlists, token, arePlLoading } = useSelector(getState);
+  const token = useSelector(state => state.currentUser.user.tokenAccess);
 
-  const [state, statePatch] = useReducer(reducer, initialState);
-  const {
-    sortBy,
-    order,
-    createOpen,
-    deleteOpen,
-    deleteId,
-    shouldBadgeUpdate
-  } = state;
+  const [
+    { sortBy, order, createOpen, deleteOpen, deleteId, shouldBadgeUpdate },
+    statePatch
+  ] = useReducer(reducer, initialState);
+
   const closeDialogs = useCallback(() => {
     statePatch({ type: "Create_Close" });
     statePatch({ type: "Delete_Close" });
   }, []);
-
-  const sortedPlaylists = useSort(playlists, sortBy, order);
 
   useLayoutEffect(() => {
     document.querySelector("body").scrollIntoView();
@@ -91,18 +62,17 @@ export default function PlaylistsTab() {
   }
 
   return (
-    <Grid container justify="center" className={classes.container}>
+    <Grid container justify="center">
       <PlaylistsSortIcons statePatch={statePatch} />
 
       <PlaylistCreateIcon statePatch={statePatch} />
 
       <PlaylistsCards
         storePatch={storePatch}
-        playlists={sortedPlaylists}
         token={token}
-        arePlLoading={arePlLoading}
         statePatch={statePatch}
-        sorter={sortBy + order}
+        sortBy={sortBy}
+        order={order}
       />
 
       <DialogDeletePlaylist

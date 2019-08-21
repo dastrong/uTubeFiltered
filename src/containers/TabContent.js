@@ -1,13 +1,24 @@
 import React from "react";
 import { useSelector } from "react-redux";
+import { makeStyles } from "@material-ui/core/styles";
 import PlaylistsTab from "./PlaylistsTab";
 import PlayerTab from "./PlayerTab";
 
+const useStyles = makeStyles(theme => ({
+  container: {
+    padding: 10,
+    [theme.breakpoints.down("xs")]: {
+      marginBottom: 48
+    }
+  }
+}));
+
 export default function TabContent() {
+  const classes = useStyles();
   const value = useSelector(state => state.ui.tabValue);
 
   return (
-    <div>
+    <div className={classes.container}>
       {value === 0 && (
         <div>
           <p>add</p>

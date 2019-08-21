@@ -1,11 +1,15 @@
 import React, { useCallback } from "react";
 import PropTypes from "prop-types";
+import { useSelector } from "react-redux";
+import { createSelector } from "reselect";
+import { shallowEqual } from "recompose";
 import { makeStyles } from "@material-ui/styles";
 import { Zoom, Typography, CircularProgress } from "@material-ui/core";
 import PlaylistCard from "../components/PlaylistCard";
 import { updatePlaylistItems } from "../store/actions/playlistItems";
 import { setTab, decrPlUpdBadge } from "../store/actions/ui";
 import { playlistPlay, plItemPlay } from "../store/actions/ids";
+import useSort from "../hooks/useSort";
 
 const blankThumbnail = "https://s.ytimg.com/yts/img/no_thumbnail-vfl4t3-4R.jpg";
 
@@ -17,17 +21,23 @@ const useStyles = makeStyles({
   }
 });
 
+const playlistSelector = state => state.playlists;
+const loaderSelector = state => state.ui.arePlLoading;
+
+const getState = createSelector(
+  playlistSelector,
+  loaderSelector,
+  (playlists, arePlLoading) => ({ playlists, arePlLoading })
+);
+
 export default function PlaylistsCards(props) {
-  const {
-    storePatch,
-    statePatch,
-    playlists,
-    token,
-    arePlLoading,
-    sorter
-  } = props;
+  const { storePatch, statePatch, token, sortBy, order } = props;
+
   const classes = useStyles();
-  const isPlaylistFound = !!playlists.length;
+  const { playlists, arePlLoading } = useSelector(getState, shallowEqual);
+  const sortedPlaylists = useSort(playlists, sortBy, order);
+
+  const isPlaylistFound = !!sortedPlaylists.length;
   const dateNow = Date.now();
 
   // fires when a user clicks the play button
@@ -60,13 +70,13 @@ export default function PlaylistsCards(props) {
     );
   }
 
-  return playlists.map(({ id, tags, items, title }, i) => {
+  return sortedPlaylists.map(({ id, tags, items, title }, i) => {
     const videoCount = items.length;
     const firstItemId = !!videoCount ? items[0].playlistItemId : "";
     const thumbnail = videoCount ? items[0].thumbnail : blankThumbnail;
     return (
       <Zoom
-        key={id + sorter + i}
+        key={id + sortBy + order + i}
         in={true}
         style={{ transitionDelay: `${i * 150}ms` }}
       >
@@ -91,8 +101,7 @@ export default function PlaylistsCards(props) {
 PlaylistsCards.propTypes = {
   statePatch: PropTypes.func.isRequired,
   storePatch: PropTypes.func.isRequired,
-  playlists: PropTypes.array.isRequired,
   token: PropTypes.string.isRequired,
-  sorter: PropTypes.string.isRequired,
-  arePlLoading: PropTypes.bool.isRequired
+  sortBy: PropTypes.string.isRequired,
+  order: PropTypes.string.isRequired
 };
