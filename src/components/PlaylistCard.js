@@ -17,7 +17,6 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
 import NotInterested from "@material-ui/icons/NotInterestedRounded";
 import ToolTip from "./ToolTip";
-import { incrPlUpdBadge } from "../store/actions/ui";
 
 const useStyles = makeStyles(theme => ({
   item: {
@@ -112,10 +111,7 @@ export default function PlaylistCard({
   const isUpdateAvail = tags && dateNow > dateUpdate;
   const [isUpdateAvailable, setIsUpdateAvailable] = useState(isUpdateAvail);
 
-  function setUpdateAvailable() {
-    setIsUpdateAvailable(true);
-    storePatch(incrPlUpdBadge());
-  }
+  const setUpdateAvailable = () => setIsUpdateAvailable(true);
 
   return (
     <Grid {...props} className={classes.item} item xs={12} sm={6} md={4} lg={3}>
