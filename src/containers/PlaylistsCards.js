@@ -23,15 +23,18 @@ const useStyles = makeStyles({
 
 const playlistSelector = state => state.playlists;
 const loaderSelector = state => state.ui.arePlLoading;
+const plUpdatesSelector = state => state.plUpdates;
 const idsSelector = state => state.ids.playlist;
 
 const getState = createSelector(
   playlistSelector,
   loaderSelector,
+  plUpdatesSelector,
   idsSelector,
-  (playlists, arePlLoading, { deleting, updating }) => ({
+  (playlists, arePlLoading, plUpdates, { deleting, updating }) => ({
     playlists,
     arePlLoading,
+    ...plUpdates,
     deleting,
     updating
   })
@@ -41,14 +44,20 @@ export default function PlaylistsCards(props) {
   const { storePatch, statePatch, token, sortBy, order } = props;
 
   const classes = useStyles();
-  const { playlists, arePlLoading, deleting, updating } = useSelector(
-    getState,
-    shallowEqual
-  );
+  const {
+    playlists,
+    arePlLoading,
+    deleting,
+    updating,
+    newVideoCount,
+    videosAdded
+  } = useSelector(getState, shallowEqual);
   const sortedPlaylists = useSort(playlists, sortBy, order);
 
   const isPlaylistFound = !!sortedPlaylists.length;
   const dateNow = Date.now();
+  const getProgress = !videosAdded || !newVideoCount;
+  const updateProgress = getProgress ? 0 : (videosAdded / newVideoCount) * 100;
 
   // fires when a user clicks the play button
   const watchPL = useCallback(
@@ -102,6 +111,7 @@ export default function PlaylistsCards(props) {
           firstItemId={firstItemId}
           isDeleting={isDeleting}
           isUpdating={isUpdating}
+          updateProgress={updateProgress}
           statePatch={statePatch}
           storePatch={storePatch}
           watchPL={watchPL}

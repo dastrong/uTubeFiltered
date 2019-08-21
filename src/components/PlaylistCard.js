@@ -100,6 +100,7 @@ export default function PlaylistCard({
   firstItemId,
   isDeleting,
   isUpdating,
+  updateProgress,
   statePatch,
   storePatch,
   watchPL,
@@ -143,7 +144,7 @@ export default function PlaylistCard({
                       className={classes.otherIcons}
                     />
                   ) : (
-                    <IconWithSpin spin={isUpdating}>
+                    <IconWithSpin spin={isUpdating} value={updateProgress}>
                       <RefreshIcon className={classes.otherIcons} />
                     </IconWithSpin>
                   )}
@@ -219,6 +220,7 @@ PlaylistCard.propTypes = {
   firstItemId: PropTypes.string.isRequired,
   isDeleting: PropTypes.bool.isRequired,
   isUpdating: PropTypes.bool.isRequired,
+  updateProgress: PropTypes.number.isRequired,
   statePatch: PropTypes.func.isRequired,
   storePatch: PropTypes.func.isRequired,
   watchPL: PropTypes.func.isRequired,

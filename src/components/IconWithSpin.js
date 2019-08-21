@@ -4,10 +4,16 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 // adds a spinner around Icon
 // children should be an icon to wrap around
 // adds position absolute, so spinner wraps over the icon
-const IconWithSpin = ({ spin, children }) => (
+const IconWithSpin = ({ children, spin, value }) => (
   <>
     {children}
-    {spin && <CircularProgress style={{ position: "absolute" }} />}
+    {spin && (
+      <CircularProgress
+        variant={value === undefined ? "indeterminate" : "static"}
+        value={value}
+        style={{ position: "absolute" }}
+      />
+    )}
   </>
 );
 

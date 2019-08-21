@@ -14,6 +14,7 @@ import {
   plItemDelete,
   plItemClear
 } from "./ids";
+import { setNewVideoCount, resetPlUpdated, incrVideosAdded } from "./plUpdates";
 
 const halfItemsURL = fetchURL("playlistItems");
 const halfSearchURL = fetchURL("search");
@@ -117,29 +118,27 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
       const videoIds = results
         .map(({ items }) => items.map(item => item.id.videoId))
         .reduce((acc, cVal) => [acc, ...cVal]);
+      dispatch(setNewVideoCount(videoIds.length));
       // will throw if an error happens
-      await insertPlaylistItems(token, playlistId, videoIds);
+      await insertPlaylistItems(token, playlistId, videoIds, dispatch);
       // checks and skips updating playlist if it was just created
       // we only pass the title during updates
       if (title) {
         // update the playlist lastUpdate tag
         const newTags = formTagParams(channels, query);
-        dispatch(
-          updatePlaylist(token, playlistId, {
-            title,
-            description,
-            tags: newTags
-          })
-        );
+        const snippet = { title, description, tags: newTags };
+        dispatch(updatePlaylist(token, playlistId, snippet));
       }
       // get all playlist items again
       dispatch(getPlaylistItems(token, playlistId));
       dispatch(playlistClear("updating"));
       dispatch(showSnackBar("success", "Playlist Updated"));
+      dispatch(resetPlUpdated());
     } catch (err) {
       console.log(err);
       dispatch(playlistClear("updating"));
-      dispatch(showSnackBar("success", "Error updating playlist videos."));
+      dispatch(showSnackBar("error", "Error updating playlist videos."));
+      dispatch(resetPlUpdated());
     }
   };
 }
@@ -163,13 +162,14 @@ export function deletePlaylistItem(token, playlistItemId, playlistId) {
 
 // used to combat this issue: https://issuetracker.google.com/issues/35173743
 // TLDR need to process request sequentially for 100% POST accuracy
-async function insertPlaylistItems(token, playlistId, videoIds) {
+async function insertPlaylistItems(token, playlistId, videoIds, dispatch) {
   for (const videoId of videoIds) {
     const resourceId = { videoId, kind: "youtube#video" };
     const body = JSON.stringify({ snippet: { playlistId, resourceId } });
     // https://developers.google.com/youtube/v3/docs/playlistItems/list#parameters
     const params = { part: "snippet" };
     await apiRequest("POST", halfItemsURL, token, params, body);
+    dispatch(incrVideosAdded());
     // throws an error if unsuccessful, but we won't
     // return anything here because getting all playlist
     // items is only worth 1 quota
