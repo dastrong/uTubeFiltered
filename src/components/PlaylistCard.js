@@ -9,7 +9,6 @@ import {
   Typography,
   CardContent,
   IconButton,
-  CircularProgress,
   Badge
 } from "@material-ui/core";
 import PlayIcon from "@material-ui/icons/PlayArrow";
@@ -17,6 +16,7 @@ import RefreshIcon from "@material-ui/icons/Refresh";
 import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
 import NotInterested from "@material-ui/icons/NotInterestedRounded";
 import ToolTip from "./ToolTip";
+import IconWithSpin from "./IconWithSpin";
 
 const useStyles = makeStyles(theme => ({
   item: {
@@ -65,7 +65,6 @@ const useStyles = makeStyles(theme => ({
     height: 22,
     width: 22
   },
-  loader: { position: "absolute" },
   badge: {
     right: 0,
     top: 0,
@@ -90,14 +89,6 @@ const CountdownText = ({ hours, minutes, seconds, completed }) => `
         : ` in ${zeroPad(hours)}:${zeroPad(minutes)}:${zeroPad(seconds)}`
     }
 `;
-
-// adds a spinner for update/delete buttons
-const IconWithSpin = ({ CXspinner, spin, children }) => (
-  <>
-    {children}
-    {spin && <CircularProgress className={CXspinner} />}
-  </>
-);
 
 export default function PlaylistCard({
   id,
@@ -152,7 +143,7 @@ export default function PlaylistCard({
                       className={classes.otherIcons}
                     />
                   ) : (
-                    <IconWithSpin CXspinner={classes.loader} spin={isUpdating}>
+                    <IconWithSpin spin={isUpdating}>
                       <RefreshIcon className={classes.otherIcons} />
                     </IconWithSpin>
                   )}
@@ -177,7 +168,7 @@ export default function PlaylistCard({
                   })
                 }
               >
-                <IconWithSpin CXspinner={classes.loader} spin={isDeleting}>
+                <IconWithSpin spin={isDeleting}>
                   <DeleteIcon className={classes.otherIcons} />
                 </IconWithSpin>
               </IconButton>
