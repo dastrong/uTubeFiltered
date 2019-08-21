@@ -8,7 +8,7 @@ import PlayerInfo from "../components/PlayerInfo";
 import PlayerListHeader from "../components/PlayerListHeader";
 import PlayerListItems from "../components/PlayerListItems";
 import { deletePlaylistItem } from "../store/actions/playlistItems";
-import { playlistPlay, plItemPlay } from "../store/actions/ids";
+import { plItemPlay, resetAllIds } from "../store/actions/ids";
 import { setTab } from "../store/actions/ui";
 
 const useStyles = makeStyles(theme => ({
@@ -80,8 +80,7 @@ export default function PlayerTab() {
     // go back to playlists tab and reset the player ids
     if (items.length === 1) {
       storePatch(setTab(1));
-      storePatch(plItemPlay(""));
-      storePatch(playlistPlay(""));
+      storePatch(resetAllIds());
       return;
     }
     if (isPlaying) {
