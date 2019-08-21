@@ -134,7 +134,7 @@ export default function PlaylistCard({
               >
                 <IconButton
                   aria-label="Refresh"
-                  disabled={!isUpdateAvailable}
+                  disabled={!isUpdateAvailable || isUpdating || isDeleting}
                   onClick={() => refreshPL(id, tags, title)}
                 >
                   {tags === null ? (
@@ -152,7 +152,7 @@ export default function PlaylistCard({
               <ToolTip title={videoCount ? "" : "No videos found in here"}>
                 <IconButton
                   aria-label="Play"
-                  disabled={!videoCount}
+                  disabled={!videoCount || isUpdating || isDeleting}
                   onClick={() => watchPL(id, firstItemId)}
                 >
                   <PlayIcon className={classes.playIcon} />
@@ -160,6 +160,7 @@ export default function PlaylistCard({
               </ToolTip>
               <IconButton
                 aria-label="Delete"
+                disabled={isUpdating || isDeleting}
                 onClick={() =>
                   statePatch({
                     type: "Delete_Open",
