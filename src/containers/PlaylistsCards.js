@@ -2,7 +2,6 @@ import React, { useCallback } from "react";
 import PropTypes from "prop-types";
 import { useSelector, shallowEqual } from "react-redux";
 import { createSelector } from "reselect";
-import { makeStyles } from "@material-ui/styles";
 import { Zoom, Typography, CircularProgress } from "@material-ui/core";
 import PlaylistCard from "../components/PlaylistCard";
 import { updatePlaylistItems } from "../store/actions/playlistItems";
@@ -11,14 +10,6 @@ import { playlistPlay, plItemPlay } from "../store/actions/ids";
 import useSort from "../hooks/useSort";
 
 const blankThumbnail = "https://s.ytimg.com/yts/img/no_thumbnail-vfl4t3-4R.jpg";
-
-const useStyles = makeStyles({
-	h6: {
-		margin: "10px auto",
-		maxWidth: 150,
-		textAlign: "center"
-	}
-});
 
 const playlistSelector = state => state.playlists;
 const loaderSelector = state => state.ui.arePlLoading;
@@ -42,7 +33,6 @@ const getState = createSelector(
 export default function PlaylistsCards(props) {
 	const { storePatch, statePatch, token, sortBy, order } = props;
 
-	const classes = useStyles();
 	const {
 		playlists,
 		arePlLoading,
@@ -82,7 +72,7 @@ export default function PlaylistsCards(props) {
 
 	if (!isPlaylistFound) {
 		return (
-			<Typography className={classes.h6} variant="h6">
+			<Typography style={{ margin: "10px auto" }} variant="h6">
 				No Playlists Found
 			</Typography>
 		);
