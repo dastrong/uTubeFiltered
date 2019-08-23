@@ -2,7 +2,7 @@ import React, { useEffect } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
 import CircularProgress from "@material-ui/core/CircularProgress";
 import App from "../components/App";
-import QuotaFullPage from "../components/QuotaFullPage";
+import QuotaFullPage from "./QuotaFullPage";
 import { loadClient } from "../util/gabi";
 
 const loaderStyles = {
@@ -26,8 +26,9 @@ export default function Client() {
 	const { isClientLoaded, isQuotaFull } = state;
 
 	useEffect(() => {
+		if (isQuotaFull) return;
 		loadClient(dispatch);
-	}, [dispatch]);
+	}, [dispatch, isQuotaFull]);
 
 	return isQuotaFull ? (
 		<QuotaFullPage />
