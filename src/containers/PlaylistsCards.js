@@ -45,7 +45,7 @@ export default function PlaylistsCards(props) {
 
 	const isPlaylistFound = !!sortedPlaylists.length;
 	const dateNow = Date.now();
-	const getProgress = !videosAdded || !newVideoCount;
+	const getProgress = newVideoCount < 5;
 	const updateProgress = getProgress ? 0 : (videosAdded / newVideoCount) * 100;
 
 	// fires when a user clicks the play button
