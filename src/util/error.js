@@ -7,7 +7,7 @@ export function handleError(dispatch, { code, errors, message }) {
 	// 400 code errors get a simple snackbar notificationn
 	if (code !== 403) return;
 	// check if the error was due to the app quota being reached
-	const quotaRelatedReasons = ["dailyLimitExceeded", "quotaExceeded	"];
+	const quotaRelatedReasons = ["dailyLimitExceeded", "quotaExceeded"];
 	const isQuotaFull = quotaRelatedReasons.includes(errors[0].reason);
 	if (!isQuotaFull) return;
 	dispatch(setQuota(true));
