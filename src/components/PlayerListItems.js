@@ -19,12 +19,12 @@ export default function PlayerListItems(props) {
 
 	return (
 		<div id="items-holder" style={{ maxHeight: "500px", overflowY: "auto" }}>
-			{videos.map(({ videoTitle, thumbnail, playlistItemId }, i) => {
+			{videos.map(({ videoTitle, thumbnail, playlistItemId }) => {
 				const isPlaying = playlistItemId === curPlItemId;
 				const isDeleting = playlistItemId === deletingId;
 				return (
 					<PlayerListItem
-						key={i + " listItem: " + playlistItemId}
+						key={"listItem: " + playlistItemId}
 						title={videoTitle}
 						thumbnail={thumbnail}
 						deleteVid={() => deleteVid(isPlaying, playlistItemId)}
