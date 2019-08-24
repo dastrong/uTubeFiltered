@@ -50,7 +50,7 @@ export default function QuotaFullPage() {
 
 				<Typography variant="h2" component="h4" color="secondary">
 					<Countdown
-						date={refreshDate}
+						date={new Date(refreshDate)}
 						zeroPadTime={0}
 						renderer={CountdownText}
 						onComplete={quotaReached}
