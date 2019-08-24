@@ -24,7 +24,7 @@ const init = () => {
 	if (isQuotaFull) {
 		const currentDate = new Date();
 		isQuotaFull = currentDate < new Date(refreshDate);
-		// if the refreshDate has passed flip the variable
+		// if the refreshDate has passed remove the variable from localStorage
 		if (!isQuotaFull) {
 			localStorage.removeItem("quotaInfo");
 		}
