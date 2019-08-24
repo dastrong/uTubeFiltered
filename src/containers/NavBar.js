@@ -3,90 +3,90 @@ import { useDispatch, useSelector, shallowEqual } from "react-redux";
 import { createSelector } from "reselect";
 import { makeStyles } from "@material-ui/core/styles";
 import {
-  AppBar,
-  Toolbar,
-  Typography,
-  IconButton,
-  MenuItem,
-  Menu,
-  Button,
-  Avatar
+	AppBar,
+	Toolbar,
+	Typography,
+	IconButton,
+	MenuItem,
+	Menu,
+	Button,
+	Avatar
 } from "@material-ui/core";
 import { authUser, unAuthUser } from "../store/actions/auth";
 import { signIn, signOut, revokeAccess } from "../util/gabi";
 
 const useStyles = makeStyles({
-  root: { flexGrow: 1 },
-  grow: { flexGrow: 1 },
-  icon: {
-    padding: 2,
-    margin: 10
-  }
+	root: { flexGrow: 1 },
+	grow: { flexGrow: 1 },
+	icon: {
+		padding: 2,
+		margin: 10
+	}
 });
 
 const getUser = createSelector(
-  state => state.currentUser,
-  currentUser => ({ ...currentUser })
+	state => state.currentUser,
+	currentUser => ({ ...currentUser })
 );
 
 export default function NavBar() {
-  const classes = useStyles();
-  const dispatch = useDispatch();
-  const { user, isAuthenticated } = useSelector(getUser, shallowEqual);
+	const classes = useStyles();
+	const dispatch = useDispatch();
+	const { user, isAuthenticated } = useSelector(getUser, shallowEqual);
 
-  const [anchorEl, setAnchorEl] = useState(null);
-  const showMenu = !!anchorEl;
+	const [anchorEl, setAnchorEl] = useState(null);
+	const showMenu = !!anchorEl;
 
-  const _handleOpen = e => setAnchorEl(e.currentTarget);
-  const _handleClose = () => setAnchorEl(null);
+	const _handleOpen = e => setAnchorEl(e.currentTarget);
+	const _handleClose = () => setAnchorEl(null);
 
-  return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <Typography variant="h5" color="inherit" className={classes.grow}>
-            uTubeFiltered
-          </Typography>
-          {isAuthenticated ? (
-            <div>
-              <IconButton
-                className={classes.icon}
-                aria-owns={showMenu ? "menu-appbar" : undefined}
-                aria-haspopup="true"
-                onClick={_handleOpen}
-                color="inherit"
-              >
-                <Avatar src={user.image} alt="user" />
-              </IconButton>
-              <Menu
-                id="menu-appbar"
-                anchorEl={anchorEl}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right"
-                }}
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right"
-                }}
-                open={showMenu}
-                onClose={_handleClose}
-              >
-                <MenuItem onClick={() => dispatch(unAuthUser(signOut))}>
-                  Sign Out
-                </MenuItem>
-                <MenuItem onClick={() => dispatch(unAuthUser(revokeAccess))}>
-                  Revoke Access
-                </MenuItem>
-              </Menu>
-            </div>
-          ) : (
-            <Button color="inherit" onClick={() => dispatch(authUser(signIn))}>
-              Login
-            </Button>
-          )}
-        </Toolbar>
-      </AppBar>
-    </div>
-  );
+	return (
+		<div className={classes.root}>
+			<AppBar position="static">
+				<Toolbar>
+					<Typography variant="h5" color="inherit" className={classes.grow}>
+						{process.env.REACT_APP_SITE_NAME}
+					</Typography>
+					{isAuthenticated ? (
+						<div>
+							<IconButton
+								className={classes.icon}
+								aria-owns={showMenu ? "menu-appbar" : undefined}
+								aria-haspopup="true"
+								onClick={_handleOpen}
+								color="inherit"
+							>
+								<Avatar src={user.image} alt="user" />
+							</IconButton>
+							<Menu
+								id="menu-appbar"
+								anchorEl={anchorEl}
+								anchorOrigin={{
+									vertical: "top",
+									horizontal: "right"
+								}}
+								transformOrigin={{
+									vertical: "top",
+									horizontal: "right"
+								}}
+								open={showMenu}
+								onClose={_handleClose}
+							>
+								<MenuItem onClick={() => dispatch(unAuthUser(signOut))}>
+									Sign Out
+								</MenuItem>
+								<MenuItem onClick={() => dispatch(unAuthUser(revokeAccess))}>
+									Revoke Access
+								</MenuItem>
+							</Menu>
+						</div>
+					) : (
+						<Button color="inherit" onClick={() => dispatch(authUser(signIn))}>
+							Login
+						</Button>
+					)}
+				</Toolbar>
+			</AppBar>
+		</div>
+	);
 }

@@ -1,4 +1,4 @@
-# uTubeFiltered
+# YouTube Filtration App
 
 ### What is it?
 
@@ -49,6 +49,8 @@ I found myself wasting time on YouTube after watching my favorite sports teams h
 REACT_APP_API_KEY=keyHere
 REACT_APP_CLIENT_ID=googleClientIdHere
 REACT_APP_CLIENT_SECRET=googleClientSecretHere
+REACT_APP_SITE_NAME=somethingCreativeHere
+REACT_APP_SITE_URL=https://somethingCatchyHere.com
 ```
 
 - `npm start`

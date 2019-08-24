@@ -37,7 +37,7 @@ export default function QuotaFullPage() {
 		<div className={holder}>
 			<Container maxWidth="xs">
 				<Typography variant="h3" component="h1">
-					uTubeFiltered
+					{process.env.REACT_APP_SITE_NAME}
 				</Typography>
 
 				<Typography variant="h5" component="h2">

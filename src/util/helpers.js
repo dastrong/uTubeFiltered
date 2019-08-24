@@ -45,11 +45,11 @@ function fetcher(method, url, token, body) {
 
 // used when creating playlists
 export const description = `
-Playlist created with uTubeFiltered.
+Playlist created with ${process.env.REACT_APP_SITE_NAME}.
 
 Improve your productivity and avoid the YouTube wormhole. 
 
-Try it at uTubeFiltered.netlify.com
+Try it at ${process.env.REACT_APP_SITE_URL}
 
 *Do NOT edit this playlist's tags
 `;
