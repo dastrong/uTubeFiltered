@@ -22,14 +22,22 @@ export function getRefreshDateString() {
 	const TZdiff = timeZoneOffsetUser - timeZoneOffsetPST;
 
 	// get the user's hour that equal to midnight PST
-	const targetTime = (24 + TZdiff) % 24;
+	const targetHr = (24 + TZdiff) % 24;
 
 	// checks if the target time will be today or tomorrow and get the target date
-	const addADay = targetTime === 0 || curHours >= targetTime ? 1 : 0;
+	const addADay = targetHr === 0 || curHours >= targetHr ? 1 : 0;
 	const targetDateNum = curDateNum + addADay;
 
 	// created local date string where => local time === midnight PST
-	const refreshDate = new Date(curYear, curMonth, targetDateNum, targetTime);
+	// add 30 seconds on the end to account for inaccuracies
+	const refreshDate = new Date(
+		curYear,
+		curMonth,
+		targetDateNum,
+		targetHr,
+		0,
+		30
+	);
 
 	return refreshDate;
 }
