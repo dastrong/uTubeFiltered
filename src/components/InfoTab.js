@@ -99,6 +99,9 @@ const Welcome = ({ dispatch }) => (
 			<Typography align="center" variant="h6" gutterBottom>
 				Take our test to see if we can help!
 			</Typography>
+			<Typography align="center" variant="caption">
+				Note: You don't need to take the test
+			</Typography>
 			<Button
 				color="primary"
 				size="large"
@@ -106,13 +109,6 @@ const Welcome = ({ dispatch }) => (
 			>
 				Start Now
 			</Button>
-			<Typography
-				style={{ marginTop: "0.35em" }}
-				align="center"
-				variant="caption"
-			>
-				Note: You don't need to take the test
-			</Typography>
 		</Container>
 	</StyledContainer>
 );
