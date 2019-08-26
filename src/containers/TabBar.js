@@ -105,14 +105,11 @@ export default function TabBar() {
 				>
 					<TvIcon />
 				</TabWithToolTip>
-				<TabWithToolTip
-					disabled={!isAuthenticated}
-					className={classes.tabs}
-					title={!isAuthenticated ? "Login required" : ""}
-				>
-					<LightIcon className={classes.lightbulb} />
-				</TabWithToolTip>
 				<Tab className={classes.tabs} icon={<HelpIcon />} />
+				<Tab
+					className={classes.tabs}
+					icon={<LightIcon className={classes.lightbulb} />}
+				/>
 			</Tabs>
 		</Paper>
 	);
