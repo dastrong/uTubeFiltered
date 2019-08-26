@@ -1,5 +1,6 @@
 import { SET_CURRENT_USER, LOGOUT_USER } from "../actionTypes";
 import { getPlaylists } from "./playlists";
+import { showSnackBar } from "./snacks";
 
 export const setCurrentUser = user => ({
 	type: SET_CURRENT_USER,
@@ -26,7 +27,7 @@ export function authUser(cb) {
 			dispatch(getPlaylists(userData.tokenAccess));
 		} catch (err) {
 			console.log(err);
-			alert(err);
+			dispatch(showSnackBar("error", "An error occured [Login]"));
 		}
 	};
 }
@@ -39,7 +40,7 @@ export function unAuthUser(cb) {
 			dispatch(logoutUser());
 		} catch (err) {
 			console.log(err);
-			alert(err);
+			dispatch(showSnackBar("error", "An error occured [Logout]"));
 		}
 	};
 }
