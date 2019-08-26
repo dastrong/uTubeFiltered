@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import PropTypes from "prop-types";
 import Countdown, { zeroPad } from "react-countdown-now";
+import { useInView } from "react-intersection-observer";
 import { makeStyles } from "@material-ui/core/styles";
 import {
 	Grid,
@@ -9,7 +10,9 @@ import {
 	Typography,
 	CardContent,
 	IconButton,
-	Badge
+	Badge,
+	Zoom,
+	useMediaQuery
 } from "@material-ui/core";
 import PlayIcon from "@material-ui/icons/PlayArrow";
 import RefreshIcon from "@material-ui/icons/Refresh";
@@ -17,6 +20,12 @@ import DeleteIcon from "@material-ui/icons/DeleteForeverRounded";
 import NotInterested from "@material-ui/icons/NotInterestedRounded";
 import ToolTip from "./ToolTip";
 import IconWithSpin from "./IconWithSpin";
+
+// mediaQuery strings
+const smallScreen = "(max-width: 769px)";
+const largeScreen = "(min-width: 1145px)";
+const rootMargin = "0px 0px -48px 0px";
+const delayOptions = [0, 1, 2];
 
 const useStyles = makeStyles(theme => ({
 	item: {
@@ -105,9 +114,25 @@ export default function PlaylistCard({
 	storePatch,
 	watchPL,
 	refreshPL,
+	i,
+	string,
+	steppedDelay,
 	...props
 }) {
 	const classes = useStyles();
+	const cardsPerLine1 = useMediaQuery(smallScreen);
+	const cardsPerLine3 = useMediaQuery(largeScreen);
+	const [ref, inView, entry] = useInView({
+		threshold: 0.4,
+		rootMargin
+	});
+	const initShown = useRef(true);
+
+	const perLine = cardsPerLine1 ? 1 : cardsPerLine3 ? 3 : 2;
+	const delayOptionsIndex = i % perLine;
+	const delay = delayOptions[delayOptionsIndex];
+	const initRender = steppedDelay.current && initShown.current;
+
 	const dateUpdate = tags && tags.lastUpdate + 86400000;
 	const isUpdateAvail = tags && dateNow > dateUpdate;
 	const [isUpdateAvailable, setIsUpdateAvailable] = useState(isUpdateAvail);
@@ -115,98 +140,115 @@ export default function PlaylistCard({
 	const setUpdateAvailable = () => setIsUpdateAvailable(true);
 
 	return (
-		<Grid {...props} className={classes.item} item xs={12} sm={6} md={4} lg={3}>
-			<Card className={classes.card}>
-				<CardContent className={classes.content}>
-					<Typography variant="h5">{title}</Typography>
-				</CardContent>
-				<div className={classes.details}>
-					<div className={classes.info}>
-						<div className={classes.controls}>
-							<ToolTip
-								title={
-									tags === null
-										? "Refer to FAQ for more info"
-										: isUpdateAvailable
-										? ""
-										: "Do some work then come back"
-								}
-								className={classes.extraRefreshPad}
-							>
-								<IconButton
-									aria-label="Refresh"
-									disabled={!isUpdateAvailable || isUpdating || isDeleting}
-									onClick={() => refreshPL(id, tags, title)}
+		<Zoom
+			key={string}
+			in={inView}
+			style={{
+				transitionDelay: `${100 * (initRender ? i : delay)}ms`
+			}}
+		>
+			<Grid
+				{...props}
+				ref={ref}
+				className={classes.item}
+				item
+				xs={12}
+				sm={6}
+				md={4}
+				// lg={3}
+			>
+				<Card className={classes.card}>
+					<CardContent className={classes.content}>
+						<Typography variant="h5">{title}</Typography>
+					</CardContent>
+					<div className={classes.details}>
+						<div className={classes.info}>
+							<div className={classes.controls}>
+								<ToolTip
+									title={
+										tags === null
+											? "Refer to FAQ for more info"
+											: isUpdateAvailable
+											? ""
+											: "Do some work then come back"
+									}
+									className={classes.extraRefreshPad}
 								>
-									{tags === null ? (
-										<NotInterested
-											color="error"
-											className={classes.otherIcons}
+									<IconButton
+										aria-label="Refresh"
+										disabled={!isUpdateAvailable || isUpdating || isDeleting}
+										onClick={() => refreshPL(id, tags, title)}
+									>
+										{tags === null ? (
+											<NotInterested
+												color="error"
+												className={classes.otherIcons}
+											/>
+										) : (
+											<IconWithSpin spin={isUpdating} value={updateProgress}>
+												<RefreshIcon className={classes.otherIcons} />
+											</IconWithSpin>
+										)}
+									</IconButton>
+								</ToolTip>
+								<ToolTip title={videoCount ? "" : "No videos found in here"}>
+									<IconButton
+										aria-label="Play"
+										disabled={!videoCount || isUpdating || isDeleting}
+										onClick={() => watchPL(id, firstItemId)}
+									>
+										<PlayIcon className={classes.playIcon} />
+									</IconButton>
+								</ToolTip>
+								<IconButton
+									aria-label="Delete"
+									disabled={isUpdating || isDeleting}
+									onClick={() =>
+										statePatch({
+											type: "Delete_Open",
+											deleteId: id,
+											shouldBadgeUpdate: isUpdateAvailable
+										})
+									}
+								>
+									<IconWithSpin spin={isDeleting}>
+										<DeleteIcon className={classes.otherIcons} />
+									</IconWithSpin>
+								</IconButton>
+							</div>
+							<CardContent className={classes.date}>
+								<Typography variant="caption">
+									{isUpdateAvailable !== null ? (
+										<Countdown
+											date={dateUpdate}
+											zeroPadTime={0}
+											renderer={CountdownText}
+											onComplete={setUpdateAvailable}
 										/>
 									) : (
-										<IconWithSpin spin={isUpdating} value={updateProgress}>
-											<RefreshIcon className={classes.otherIcons} />
-										</IconWithSpin>
+										`Not a ${process.env.REACT_APP_SITE_NAME} playlist`
 									)}
-								</IconButton>
-							</ToolTip>
-							<ToolTip title={videoCount ? "" : "No videos found in here"}>
-								<IconButton
-									aria-label="Play"
-									disabled={!videoCount || isUpdating || isDeleting}
-									onClick={() => watchPL(id, firstItemId)}
-								>
-									<PlayIcon className={classes.playIcon} />
-								</IconButton>
-							</ToolTip>
-							<IconButton
-								aria-label="Delete"
-								disabled={isUpdating || isDeleting}
-								onClick={() =>
-									statePatch({
-										type: "Delete_Open",
-										deleteId: id,
-										shouldBadgeUpdate: isUpdateAvailable
-									})
-								}
-							>
-								<IconWithSpin spin={isDeleting}>
-									<DeleteIcon className={classes.otherIcons} />
-								</IconWithSpin>
-							</IconButton>
+								</Typography>
+							</CardContent>
 						</div>
-						<CardContent className={classes.date}>
-							<Typography variant="caption">
-								{isUpdateAvailable !== null ? (
-									<Countdown
-										date={dateUpdate}
-										zeroPadTime={0}
-										renderer={CountdownText}
-										onComplete={setUpdateAvailable}
-									/>
-								) : (
-									`Not a ${process.env.REACT_APP_SITE_NAME} playlist`
-								)}
-							</Typography>
-						</CardContent>
+						<Badge
+							classes={{ badge: classes.badge }}
+							badgeContent={videoCount}
+							color="secondary"
+							invisible={!videoCount}
+						>
+							<CardMedia
+								component="img"
+								alt="playlist thumbnail"
+								className={classes.cover}
+								title={title}
+								image={thumbnail}
+							/>
+						</Badge>
 					</div>
-					<Badge
-						classes={{ badge: classes.badge }}
-						badgeContent={videoCount}
-						color="secondary"
-						invisible={!videoCount}
-					>
-						<CardMedia
-							component="img"
-							alt="playlist thumbnail"
-							className={classes.cover}
-							title={title}
-							image={thumbnail}
-						/>
-					</Badge>
-				</div>
-			</Card>
-		</Grid>
+				</Card>
+			</Grid>
+		</Zoom>
 	);
 }
 

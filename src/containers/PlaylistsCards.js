@@ -1,8 +1,8 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useEffect, useRef } from "react";
 import PropTypes from "prop-types";
 import { useSelector, shallowEqual } from "react-redux";
 import { createSelector } from "reselect";
-import { Zoom, Typography, CircularProgress } from "@material-ui/core";
+import { Typography, CircularProgress } from "@material-ui/core";
 import PlaylistCard from "../components/PlaylistCard";
 import { updatePlaylistItems } from "../store/actions/playlistItems";
 import { setTab, decrPlUpdBadge } from "../store/actions/ui";
@@ -42,6 +42,7 @@ export default function PlaylistsCards(props) {
 		videosAdded
 	} = useSelector(getState, shallowEqual);
 	const sortedPlaylists = useSort(playlists, sortBy, order);
+	const steppedDelay = useRef(true);
 
 	const isPlaylistFound = !!sortedPlaylists.length;
 	const dateNow = Date.now();
@@ -68,6 +69,15 @@ export default function PlaylistsCards(props) {
 		[storePatch, token]
 	);
 
+	useEffect(() => {
+		steppedDelay.current = true;
+		const id = setTimeout(() => {
+			steppedDelay.current = false;
+			console.log(steppedDelay);
+		}, 500);
+		return () => clearTimeout(id);
+	}, [sortBy, order]);
+
 	if (arePlLoading) return <CircularProgress />;
 
 	if (!isPlaylistFound) {
@@ -85,28 +95,26 @@ export default function PlaylistsCards(props) {
 		const isDeleting = deleting === id;
 		const isUpdating = updating === id;
 		return (
-			<Zoom
+			<PlaylistCard
+				id={id}
+				title={title}
+				tags={tags}
+				dateNow={dateNow}
+				thumbnail={thumbnail}
+				videoCount={videoCount}
+				firstItemId={firstItemId}
+				isDeleting={isDeleting}
+				isUpdating={isUpdating}
+				updateProgress={updateProgress}
+				statePatch={statePatch}
+				storePatch={storePatch}
+				watchPL={watchPL}
+				refreshPL={refreshPL}
+				string={id + sortBy + order + i}
 				key={id + sortBy + order + i}
-				in={true}
-				style={{ transitionDelay: `${i * 150}ms` }}
-			>
-				<PlaylistCard
-					id={id}
-					title={title}
-					tags={tags}
-					dateNow={dateNow}
-					thumbnail={thumbnail}
-					videoCount={videoCount}
-					firstItemId={firstItemId}
-					isDeleting={isDeleting}
-					isUpdating={isUpdating}
-					updateProgress={updateProgress}
-					statePatch={statePatch}
-					storePatch={storePatch}
-					watchPL={watchPL}
-					refreshPL={refreshPL}
-				/>
-			</Zoom>
+				i={i}
+				steppedDelay={steppedDelay}
+			/>
 		);
 	});
 }
