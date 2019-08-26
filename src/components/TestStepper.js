@@ -1,15 +1,15 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
-import MobileStepper from "@material-ui/core/MobileStepper";
 import {
 	Card,
 	CardContent,
 	CardActions,
 	Typography,
-	Button
+	Button,
+	MobileStepper
 } from "@material-ui/core/";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles({
 	card: {
 		width: "100%"
 	},
@@ -23,7 +23,7 @@ const useStyles = makeStyles(theme => ({
 	progress: {
 		width: "100%"
 	}
-}));
+});
 
 export default function TextStepper({ dispatch }) {
 	const classes = useStyles();

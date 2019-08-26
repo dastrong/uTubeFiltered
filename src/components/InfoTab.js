@@ -3,17 +3,50 @@ import { Typography, Button, Container } from "@material-ui/core";
 import StyledContainer from "./StyledContainer";
 import TestStepper from "./TestStepper";
 
-const initialState = { showTest: false, showResults: false, points: 25 };
+const saveResults = result => localStorage.setItem("testResults", result);
+
+const init = () => {
+	let testResults = localStorage.testResults;
+	if (!testResults)
+		return {
+			headerText: "Your",
+			showTest: false,
+			showResults: false,
+			points: 25
+		};
+	return {
+		headerText: "Past",
+		showTest: false,
+		showResults: true,
+		points: Number(testResults)
+	};
+};
+
+const initialState = init();
 
 const reducer = (state, action) => {
 	const { type, point } = action;
 	switch (type) {
 		case "Show_Test":
-			return { ...initialState, showTest: true };
-		case "Show_Results":
-			return { ...state, showTest: false, showResults: true };
+			return { ...state, showTest: true };
+		case "Show_Results": {
+			saveResults(state.points);
+			return {
+				...state,
+				showTest: false,
+				showResults: true,
+				headerText: "Your"
+			};
+		}
 		case "Answer_Q":
 			return { ...state, points: state.points + point };
+		case "Reset_Test":
+			return {
+				showResults: false,
+				showTest: true,
+				points: 25,
+				headerText: "Your"
+			};
 		default:
 			return state;
 	}
@@ -21,11 +54,14 @@ const reducer = (state, action) => {
 
 export default function InfoTab() {
 	const [state, dispatch] = useReducer(reducer, initialState);
-	const { showTest, showResults, points } = state;
+	const { headerText, showTest, showResults, points } = state;
 
 	if (showTest) return <Test dispatch={dispatch} />;
 
-	if (showResults) return <Results dispatch={dispatch} points={points} />;
+	if (showResults)
+		return (
+			<Results dispatch={dispatch} points={points} headerText={headerText} />
+		);
 
 	return <Welcome dispatch={dispatch} />;
 }
@@ -38,15 +74,15 @@ const Test = ({ dispatch }) => (
 	</StyledContainer>
 );
 
-const Results = ({ dispatch, points }) => {
+const Results = ({ dispatch, points, headerText }) => {
 	const result = getResult(points);
 	return (
-		<StyledContainer title="Your Results">
+		<StyledContainer title={`${headerText} Result`}>
 			<Container maxWidth="md">
 				<Typography style={{ padding: "16px 0" }} align="center">
 					{result}
 				</Typography>
-				<Button onClick={() => dispatch({ type: "Show_Test" })}>
+				<Button onClick={() => dispatch({ type: "Reset_Test" })}>
 					Take the test again?
 				</Button>
 			</Container>
