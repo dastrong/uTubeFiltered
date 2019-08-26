@@ -1,30 +1,38 @@
 import React, { useCallback } from "react";
 import { useSelector, useDispatch, shallowEqual } from "react-redux";
-import { makeStyles, useTheme } from "@material-ui/core/styles";
-import { Tabs, Tab, Paper, Badge, useMediaQuery } from "@material-ui/core/";
+import { makeStyles } from "@material-ui/core/styles";
+import { Tabs, Tab, Paper, Badge } from "@material-ui/core/";
+import InfoIcon from "@material-ui/icons/Info";
+import PlaylistIcon from "@material-ui/icons/PlaylistPlay";
 import TvIcon from "@material-ui/icons/LiveTv";
 import HelpIcon from "@material-ui/icons/Help";
-import InfoIcon from "@material-ui/icons/Info";
-import SubsIcon from "@material-ui/icons/Subscriptions";
-import PlaylistIcon from "@material-ui/icons/PlaylistPlay";
+import LightIcon from "@material-ui/icons/WbIncandescent";
 import ToolTip from "../components/ToolTip";
 import usePlUpdateNotifier from "../hooks/usePlUpdateNotifier";
 import { setTab } from "../store/actions/ui";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
 	root: {
-		position: "fixed",
-		bottom: 0,
-		width: "100%",
-		zIndex: 111
+		[theme.breakpoints.down("xs")]: {
+			position: "fixed",
+			bottom: 0,
+			width: "100%",
+			zIndex: 111
+		},
+		"& .MuiSvgIcon-root": {
+			verticalAlign: "middle"
+		}
 	},
 	tabs: {
 		flex: "auto",
 		maxWidth: 150,
 		minWidth: 60,
 		textAlign: "center"
+	},
+	lightbulb: {
+		transform: "rotate(180deg)"
 	}
-});
+}));
 
 const TabWithToolTip = ({ className, title, disabled, children, ...rest }) => (
 	<Tab
@@ -57,15 +65,12 @@ export default function TabBar() {
 	// automatically updates our updated available badge
 	usePlUpdateNotifier(playlists);
 
-	const theme = useTheme();
-	const isMobile = useMediaQuery(theme.breakpoints.down("xs"));
-
 	const _handleChange = useCallback((e, value) => dispatch(setTab(value)), [
 		dispatch
 	]);
 
 	return (
-		<Paper square className={isMobile ? classes.root : ""}>
+		<Paper square className={classes.root}>
 			<Tabs
 				value={value}
 				onChange={_handleChange}
@@ -105,7 +110,7 @@ export default function TabBar() {
 					className={classes.tabs}
 					title={!isAuthenticated ? "Login required" : ""}
 				>
-					<SubsIcon />
+					<LightIcon className={classes.lightbulb} />
 				</TabWithToolTip>
 				<Tab className={classes.tabs} icon={<HelpIcon />} />
 			</Tabs>
