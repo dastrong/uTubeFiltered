@@ -35,7 +35,7 @@ const init = () => {
 		isQuotaFull,
 		autoDelete,
 		isClientLoaded: false,
-		arePlLoading: true,
+		arePlLoading: false,
 		tabValue: 0,
 		updateAvailCount: 0
 	};
