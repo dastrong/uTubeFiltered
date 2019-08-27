@@ -1,6 +1,8 @@
 import debounce from "debounce-promise";
+import { showSnackBar } from "../store/actions/snacks";
 import { fetchURL, apiRequest } from "./helpers";
 import { stripChannelSearch } from "./strippers";
+import { handleError } from "./error";
 
 const halfURL = fetchURL("search");
 
@@ -11,7 +13,7 @@ export const noOptionsMessage = ({ inputValue }, isSearchable) => {
   return "Channel Not Found";
 };
 
-export const loadMultiOptions = token =>
+export const loadMultiOptions = (token, dispatch) =>
   debounce(async inputValue => {
     if (inputValue.length < 3 || inputValue.length > 20) return;
     try {
@@ -26,7 +28,7 @@ export const loadMultiOptions = token =>
       const { items } = await apiRequest("GET", halfURL, token, params);
       return items.map(item => stripChannelSearch(item));
     } catch (err) {
-      console.log(err);
-      alert(err);
+      handleError(dispatch, err);
+      dispatch(showSnackBar("error", `An error occured [${err.code}]`));
     }
   }, 1500);

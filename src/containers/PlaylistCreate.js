@@ -88,7 +88,7 @@ export default function PlaylistCreate({ handleClose }) {
 				<DialogContentText className={classes.text} align="center">
 					Please fill in all fields.
 				</DialogContentText>
-				<PlaylistForm {...state} token={token} formPatch={formPatch} />
+				<PlaylistForm {...state} token={token} formPatch={formPatch} storePatch={storePatch} />
 			</DialogContent>
 			<DialogActions className={classes.actions}>
 				<Button
