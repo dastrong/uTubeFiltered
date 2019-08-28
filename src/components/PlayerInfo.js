@@ -5,22 +5,27 @@ import { Typography, Grid } from "@material-ui/core";
 import PlayerInfoDescription from "./PlayerInfoDescription";
 import { convertDateToString } from "../util/helpers";
 
-const useStyles = makeStyles({
+const useStyles = makeStyles(theme => ({
   container: {
     padding: 5,
     width: "100%",
-    borderBottom: "1px solid rgba(0, 0, 0, 0.22)"
+    borderBottom: "none",
+    [theme.breakpoints.down("sm")]: {
+      borderBottom: "1px solid rgba(0, 0, 0, 0.22)",
+      padding: 10
+    }
   },
   vidTitle: {
     borderTop: "1px solid rgba(0, 0, 0, 0.22)",
     marginTop: 5,
-    paddingTop: 5
+    paddingTop: 5,
+    fontWeight: 500
   },
   vidTitleTag: {
     color: "inherit",
     textDecoration: "inherit"
   }
-});
+}));
 
 export default function PlayerInfo({
   channelId,
@@ -39,7 +44,7 @@ export default function PlayerInfo({
       <Typography variant="caption">
         {Number(viewsCount).toLocaleString()} views
       </Typography>
-      <Typography className={classes.vidTitle} variant="body2">
+      <Typography className={classes.vidTitle} variant="body1" color="primary">
         <a
           className={classes.vidTitleTag}
           href={`https://www.youtube.com/channel/${channelId}`}

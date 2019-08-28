@@ -2,22 +2,22 @@ import React, { useLayoutEffect } from "react";
 import PropTypes from "prop-types";
 import PlayerListItem from "./PlayerListItem";
 
-export default function PlayerListItems(props) {
-  const {
-    videos,
-    deleteVid,
-    storePatch,
-    curPlItemId,
-    curVidIdx,
-    deletingId
-  } = props;
+const style = { maxHeight: "500px", overflowY: "auto", padding: "0 5px" };
 
+export default function PlayerListItems({
+  videos,
+  deleteVid,
+  storePatch,
+  curPlItemId,
+  curVidIdx,
+  deletingId
+}) {
   useLayoutEffect(() => {
     document.querySelector("#items-holder").scrollTop = curVidIdx * 100;
   }, [curVidIdx]);
 
   return (
-    <div id="items-holder" style={{ maxHeight: "500px", overflowY: "auto" }}>
+    <div id="items-holder" style={style}>
       {videos.map(({ videoTitle, thumbnail, playlistItemId }) => {
         const isPlaying = playlistItemId === curPlItemId;
         const isDeleting = playlistItemId === deletingId;

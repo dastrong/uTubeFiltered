@@ -30,10 +30,7 @@ const useStyles = makeStyles(theme => ({
   },
   card: {
     boxShadow: "0 0 8px #3f51b5",
-    margin: "5px 10px",
-    [theme.breakpoints.up("sm")]: {
-      margin: 10
-    }
+    margin: 10
   },
   details: {
     width: "100%",
