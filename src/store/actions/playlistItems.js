@@ -87,17 +87,16 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			const dateNow = Date.now();
 			const oneDay = 86400000;
 			// how far back do initial playlists look back
-			const numOfDays = 3;
+			const numOfDays = 2;
 			const params = {
 				part: "id",
 				publishedAfter: !title
-					? // if it's a new playlist, look back 3 days
+					? // if it's a new playlist, look back x num of days
 					  new Date(dateNow - oneDay * numOfDays).toISOString()
 					: // otherwise use the last date timestamp
 					  new Date(lastUpdate).toISOString(),
 				publishedBefore: new Date(dateNow).toISOString(),
-				maxResults: 5,
-				// maxResults: 50,
+				maxResults: 25,
 				type: "video",
 				q: query
 			};

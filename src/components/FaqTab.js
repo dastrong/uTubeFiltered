@@ -47,7 +47,7 @@ const faqs = [
 	{
 		q: "What are some limitations I should expect?",
 		a:
-			"When you create a playlist, it will only search the last 24 hours. When you update a playlist, it will search as far back as the last update, but will only add 50 videos max."
+			"When you create a playlist, it will only search the last 48 hours. When you update a playlist, it will search as far back as the last update, but will only add 25 videos max."
 	},
 	{
 		q: "Why can’t I view my playlists?",
