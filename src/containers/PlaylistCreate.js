@@ -88,7 +88,12 @@ export default function PlaylistCreate({ handleClose }) {
 				<DialogContentText className={classes.text} align="center">
 					Please fill in all fields.
 				</DialogContentText>
-				<PlaylistForm {...state} token={token} formPatch={formPatch} storePatch={storePatch} />
+				<PlaylistForm
+					{...state}
+					token={token}
+					formPatch={formPatch}
+					storePatch={storePatch}
+				/>
 			</DialogContent>
 			<DialogActions className={classes.actions}>
 				<Button
@@ -111,7 +116,7 @@ export default function PlaylistCreate({ handleClose }) {
 							channels.length === 0 ||
 							query.length < 3 ||
 							title.length < 3 ||
-							query.length > 20 ||
+							query.length > 60 ||
 							title.length > 15
 						}
 					>
