@@ -1,5 +1,4 @@
 import React from "react";
-import Linkify from "react-linkify";
 import {
 	Container,
 	List,
@@ -7,6 +6,7 @@ import {
 	ListItemAvatar,
 	ListItemText,
 	Avatar,
+	Link,
 	useMediaQuery
 } from "@material-ui/core";
 import { useTheme } from "@material-ui/core/styles";
@@ -31,10 +31,7 @@ export default function FaqTab() {
 									<Avatar>{i + 1}</Avatar>
 								</ListItemAvatar>
 							)}
-							<ListItemText
-								primary={faq.q}
-								secondary={<Linkify>{faq.a}</Linkify>}
-							/>
+							<ListItemText primary={faq.q} secondary={faq.a} />
 						</ListItem>
 					))}
 				</List>
@@ -100,6 +97,14 @@ const faqs = [
 	},
 	{
 		q: "Can I see the source code?",
-		a: "Sure. https://github.com/dastrong/uTubeFiltered"
+		a: (
+			<Link
+				href="https://github.com/dastrong/uTubeFiltered"
+				target="_blank"
+				rel="noopener noreferrer"
+			>
+				Sure.
+			</Link>
+		)
 	}
 ];
