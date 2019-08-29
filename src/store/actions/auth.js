@@ -1,10 +1,13 @@
-import { SET_CURRENT_USER } from "../actionTypes";
-import { getPlaylists, handlePlaylists } from "./playlists";
+import { SET_CURRENT_USER, LOGOUT_USER } from "../actionTypes";
+import { getPlaylists } from "./playlists";
+import { showSnackBar } from "./snacks";
 
 export const setCurrentUser = user => ({
 	type: SET_CURRENT_USER,
-	user,
+	user
 });
+
+export const logoutUser = () => ({ type: LOGOUT_USER });
 
 export function authUser(cb) {
 	return async dispatch => {
@@ -17,15 +20,14 @@ export function authUser(cb) {
 				image: userDetails.Paa,
 				tokenAccess: tokenDetails.access_token,
 				tokenId: tokenDetails.id_token,
-				tokenType: tokenDetails.token_type,
+				tokenType: tokenDetails.token_type
 			};
-			localStorage.setItem("user", JSON.stringify(userData));
 			dispatch(setCurrentUser(userData));
 			// grab the user's playlists (thunk)
 			dispatch(getPlaylists(userData.tokenAccess));
 		} catch (err) {
 			console.log(err);
-			alert(err);
+			dispatch(showSnackBar("error", "An error occured [Login]"));
 		}
 	};
 }
@@ -35,11 +37,10 @@ export function unAuthUser(cb) {
 		try {
 			localStorage.clear();
 			await cb();
-			dispatch(setCurrentUser({}));
-			dispatch(handlePlaylists([]));
+			dispatch(logoutUser());
 		} catch (err) {
 			console.log(err);
-			alert(err);
+			dispatch(showSnackBar("error", "An error occured [Logout]"));
 		}
 	};
 }

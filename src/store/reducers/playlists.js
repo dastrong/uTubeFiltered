@@ -1,60 +1,57 @@
 import {
-	LOADING_PLAYLISTS,
-	PLAYLISTS_MESSAGE,
-	GET_PLAYLISTS,
-	CREATE_PLAYLIST,
-	DELETE_PLAYLIST,
-	GET_PLAYLIST_ITEMS,
+  GET_PLAYLISTS,
+  CREATE_PLAYLIST,
+  DELETE_PLAYLIST,
+  UPDATE_PLAYLIST,
+  GET_PLAYLIST_ITEMS,
+  DELETE_PLAYLIST_ITEM
 } from "../actionTypes";
 
-const initialState = {
-	isLoading: true,
-	isError: null,
-	message: null,
-	playlists: [],
-};
-
-export default (state = initialState, action) => {
-	const { type, playlists, newPlaylist, id, items, message, isError } = action;
-	switch (type) {
-		case LOADING_PLAYLISTS:
-			return {
-				...state,
-				isLoading: true,
-			};
-		case PLAYLISTS_MESSAGE:
-			return {
-				...state,
-				isLoading: false,
-				isError,
-				message,
-			};
-		case GET_PLAYLISTS:
-			return {
-				...state,
-				playlists,
-				isLoading: false,
-			};
-		case CREATE_PLAYLIST:
-			return {
-				...state,
-				playlists: [...state.playlists, newPlaylist],
-				isLoading: false,
-			};
-		case DELETE_PLAYLIST:
-			return {
-				...state,
-				playlists: state.playlists.filter(playlist => playlist.id !== id),
-				isLoading: false,
-			};
-		case GET_PLAYLIST_ITEMS:
-			return {
-				...state,
-				playlists: state.playlists.map(playlist =>
-					playlist.id === id ? { ...playlist, items } : playlist
-				),
-			};
-		default:
-			return state;
-	}
+export default (state = [], action) => {
+  const {
+    type,
+    playlists,
+    newPlaylist,
+    tags,
+    id,
+    items,
+    playlistItemId,
+    playlistId
+  } = action;
+  switch (type) {
+    case GET_PLAYLISTS:
+      return playlists;
+    case CREATE_PLAYLIST:
+      return [...state, newPlaylist];
+    case DELETE_PLAYLIST:
+      return state.filter(playlist => playlist.id !== id);
+    case UPDATE_PLAYLIST:
+      return state.map(playlist =>
+        playlist.id === id
+          ? {
+              ...playlist,
+              items: playlist.items.map(item => ({ ...item })),
+              tags
+            }
+          : playlist
+      );
+    case GET_PLAYLIST_ITEMS:
+      return state.map(playlist =>
+        playlist.id === id ? { ...playlist, items } : playlist
+      );
+    case DELETE_PLAYLIST_ITEM:
+      return state.map(playlist =>
+        playlist.id === playlistId
+          ? {
+              ...playlist,
+              tags: { ...playlist.tags, channels: [...playlist.tags.channels] },
+              items: playlist.items.filter(
+                item => item.playlistItemId !== playlistItemId
+              )
+            }
+          : playlist
+      );
+    default:
+      return state;
+  }
 };
