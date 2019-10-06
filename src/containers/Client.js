@@ -38,6 +38,7 @@ export default function Client() {
 		if (isFirstRun) return;
 		if (isAuthenticated) return;
 		dispatch(setClient());
+		// eslint-disable-next-line react-hooks/exhaustive-deps
 	}, [dispatch, isAuthenticated]);
 
 	return isQuotaFull ? (
