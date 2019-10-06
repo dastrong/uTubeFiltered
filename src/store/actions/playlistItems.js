@@ -16,6 +16,7 @@ import {
 	plItemClear
 } from "./ids";
 import { setNewVideoCount, resetPlUpdated, incrVideosAdded } from "./plUpdates";
+import { decrPlUpdBadge } from "./ui";
 
 const halfItemsURL = fetchURL("playlistItems");
 const halfSearchURL = fetchURL("search");
@@ -112,7 +113,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			// separates the videoIds into their own array
 			const videoIds = results
 				.map(({ items }) => items.map(item => item.id.videoId))
-				.reduce((acc, cVal) => [acc, ...cVal]);
+				.reduce((acc, cVal) => [...acc, ...cVal]);
 			dispatch(setNewVideoCount(videoIds.length));
 			// will throw if an error happens
 			await insertPlaylistItems(token, playlistId, videoIds, dispatch);
@@ -126,6 +127,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			}
 			// get all playlist items again
 			dispatch(getPlaylistItems(token, playlistId));
+			dispatch(decrPlUpdBadge());
 			dispatch(playlistClear("updating"));
 			dispatch(resetPlUpdated());
 			dispatch(showSnackBar("success", "Playlist Updated"));
