@@ -4,6 +4,8 @@ import CircularProgress from "@material-ui/core/CircularProgress";
 import App from "../components/App";
 import QuotaFullPage from "./QuotaFullPage";
 import { loadClient } from "../util/gabi";
+import { setClient } from "../store/actions/ui";
+import useFirstRun from "../hooks/useFirstRun";
 
 const loaderStyles = {
 	height: "100vh",
@@ -16,19 +18,27 @@ const loaderStyles = {
 
 const getState = state => ({
 	isClientLoaded: state.ui.isClientLoaded,
-	isQuotaFull: state.ui.isQuotaFull
+	isQuotaFull: state.ui.isQuotaFull,
+	isAuthenticated: state.currentUser.isAuthenticated
 });
 
 // loads youtube client and updates UI when it's ready
 export default function Client() {
+	const isFirstRun = useFirstRun();
 	const dispatch = useDispatch();
 	const state = useSelector(getState, shallowEqual);
-	const { isClientLoaded, isQuotaFull } = state;
+	const { isClientLoaded, isQuotaFull, isAuthenticated } = state;
 
 	useEffect(() => {
 		if (isQuotaFull) return;
 		loadClient(dispatch);
 	}, [dispatch, isQuotaFull]);
+
+	useEffect(() => {
+		if (isFirstRun) return;
+		if (isAuthenticated) return;
+		dispatch(setClient());
+	}, [dispatch, isAuthenticated]);
 
 	return isQuotaFull ? (
 		<QuotaFullPage />
