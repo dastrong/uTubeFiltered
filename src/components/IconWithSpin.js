@@ -10,7 +10,7 @@ const IconWithSpin = ({ children, spin, value, color }) => (
 		{spin && (
 			<CircularProgress
 				variant={
-					value === undefined || value <= 20 ? "indeterminate" : "static"
+					value === undefined || value <= 10 ? "indeterminate" : "static"
 				}
 				value={value}
 				style={{ position: "absolute" }}
