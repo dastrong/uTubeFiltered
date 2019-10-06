@@ -7,81 +7,76 @@ import PlaylistsSortIcons from "../components/PlaylistsSortIcons";
 import DialogDeletePlaylist from "../components/DialogDeletePlaylist";
 import DialogCreatePlaylist from "../components/DialogCreatePlaylist";
 import { deletePlaylist } from "../store/actions/playlists";
-import { decrPlUpdBadge } from "../store/actions/ui";
 
 const deleteVals = {
-  deleteOpen: false,
-  deleteId: null,
-  shouldBadgeUpdate: false
+	deleteOpen: false,
+	deleteId: null,
+	shouldBadgeUpdate: false
 };
 
 const initialState = {
-  sortBy: "LastUpdate",
-  order: "ascending",
-  createOpen: false,
-  ...deleteVals
+	sortBy: "LastUpdate",
+	order: "ascending",
+	createOpen: false,
+	...deleteVals
 };
 
 const reducer = (state, action) => {
-  const { type, sortBy, order, deleteId, shouldBadgeUpdate } = action;
-  if (type === "Change_Sort") return { ...state, sortBy, order };
-  if (type === "Delete_Close") return { ...state, ...deleteVals };
-  if (type === "Delete_Open")
-    return { ...state, deleteOpen: true, deleteId, shouldBadgeUpdate };
-  if (type === "Create_Close") return { ...state, createOpen: false };
-  if (type === "Create_Open") return { ...state, createOpen: true };
-  return state;
+	const { type, sortBy, order, deleteId, shouldBadgeUpdate } = action;
+	if (type === "Change_Sort") return { ...state, sortBy, order };
+	if (type === "Delete_Close") return { ...state, ...deleteVals };
+	if (type === "Delete_Open")
+		return { ...state, deleteOpen: true, deleteId, shouldBadgeUpdate };
+	if (type === "Create_Close") return { ...state, createOpen: false };
+	if (type === "Create_Open") return { ...state, createOpen: true };
+	return state;
 };
 
 export default function PlaylistsTab() {
-  const storePatch = useDispatch();
-  const token = useSelector(state => state.currentUser.user.tokenAccess);
+	const storePatch = useDispatch();
+	const token = useSelector(state => state.currentUser.user.tokenAccess);
 
-  const [
-    { sortBy, order, createOpen, deleteOpen, deleteId, shouldBadgeUpdate },
-    statePatch
-  ] = useReducer(reducer, initialState);
+	const [
+		{ sortBy, order, createOpen, deleteOpen, deleteId, shouldBadgeUpdate },
+		statePatch
+	] = useReducer(reducer, initialState);
 
-  const closeDialogs = useCallback(() => {
-    statePatch({ type: "Create_Close" });
-    statePatch({ type: "Delete_Close" });
-  }, []);
+	const closeDialogs = useCallback(() => {
+		statePatch({ type: "Create_Close" });
+		statePatch({ type: "Delete_Close" });
+	}, []);
 
-  useLayoutEffect(() => {
-    document.querySelector("body").scrollIntoView();
-  }, [sortBy, order]);
+	useLayoutEffect(() => {
+		document.querySelector("body").scrollIntoView();
+	}, [sortBy, order]);
 
-  // fires when user confirms playlist deletion
-  function deletePL() {
-    storePatch(deletePlaylist(token, deleteId));
-    statePatch({ type: "Delete_Close" });
-    // if the playlist isn't available for an update stop here
-    if (!shouldBadgeUpdate) return;
-    // if it does have an updateAvailable, remove it from our badge count
-    storePatch(decrPlUpdBadge());
-  }
+	// fires when user confirms playlist deletion
+	function deletePL() {
+		storePatch(deletePlaylist(token, deleteId, shouldBadgeUpdate));
+		statePatch({ type: "Delete_Close" });
+	}
 
-  return (
-    <Grid container justify="center">
-      <PlaylistsSortIcons statePatch={statePatch} />
+	return (
+		<Grid container justify="center">
+			<PlaylistsSortIcons statePatch={statePatch} />
 
-      <PlaylistCreateIcon statePatch={statePatch} />
+			<PlaylistCreateIcon statePatch={statePatch} />
 
-      <PlaylistsCards
-        storePatch={storePatch}
-        token={token}
-        statePatch={statePatch}
-        sortBy={sortBy}
-        order={order}
-      />
+			<PlaylistsCards
+				storePatch={storePatch}
+				token={token}
+				statePatch={statePatch}
+				sortBy={sortBy}
+				order={order}
+			/>
 
-      <DialogDeletePlaylist
-        open={deleteOpen}
-        negFunc={closeDialogs}
-        posFunc={deletePL}
-      />
+			<DialogDeletePlaylist
+				open={deleteOpen}
+				negFunc={closeDialogs}
+				posFunc={deletePL}
+			/>
 
-      <DialogCreatePlaylist open={createOpen} negFunc={closeDialogs} />
-    </Grid>
-  );
+			<DialogCreatePlaylist open={createOpen} negFunc={closeDialogs} />
+		</Grid>
+	);
 }

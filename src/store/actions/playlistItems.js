@@ -13,7 +13,7 @@ import {
 	playlistUpdate,
 	playlistClear,
 	plItemDelete,
-	plItemClear
+	plItemDeleteRemove
 } from "./ids";
 import { setNewVideoCount, resetPlUpdated, incrVideosAdded } from "./plUpdates";
 import { decrPlUpdBadge } from "./ui";
@@ -128,12 +128,12 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 			// get all playlist items again
 			dispatch(getPlaylistItems(token, playlistId));
 			dispatch(decrPlUpdBadge());
-			dispatch(playlistClear("updating"));
+			dispatch(playlistClear("updating", ""));
 			dispatch(resetPlUpdated());
 			dispatch(showSnackBar("success", "Playlist Updated"));
 		} catch (err) {
 			handleError(dispatch, err);
-			dispatch(playlistClear("updating"));
+			dispatch(playlistClear("updating", ""));
 			dispatch(resetPlUpdated());
 			dispatch(showSnackBar("error", `An error occured [${err.code}]`));
 		}
@@ -147,11 +147,11 @@ export function deletePlaylistItem(token, playlistItemId, playlistId) {
 			// https://developers.google.com/youtube/v3/docs/playlistItems/delete#parameters
 			await apiRequest("DELETE", halfItemsURL, token, { id: playlistItemId });
 			dispatch(handleItemDelete(playlistItemId, playlistId));
-			dispatch(plItemClear("deleting"));
+			dispatch(plItemDeleteRemove(playlistItemId));
 			dispatch(showSnackBar("success", "Video deleted"));
 		} catch (err) {
 			handleError(dispatch, err);
-			dispatch(plItemClear("deleting"));
+			dispatch(plItemDeleteRemove(playlistItemId));
 			dispatch(showSnackBar("error", `An error occured [${err.code}]`));
 		}
 	};

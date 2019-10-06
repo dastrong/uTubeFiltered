@@ -84,8 +84,7 @@ export default function PlaylistsCards(props) {
 		const videoCount = items.length;
 		const firstItemId = !!videoCount ? items[0].playlistItemId : "";
 		const thumbnail = videoCount ? items[0].thumbnail : blankThumbnail;
-		const isDeleting = deleting === id;
-		const isUpdating = updating === id;
+		const isDeleting = deleting.includes(id);
 		return (
 			<PlaylistCard
 				key={id + sortBy + order + i}
@@ -97,7 +96,7 @@ export default function PlaylistsCards(props) {
 				videoCount={videoCount}
 				firstItemId={firstItemId}
 				isDeleting={isDeleting}
-				isUpdating={isUpdating}
+				currentlyUpdating={updating}
 				updateProgress={updateProgress}
 				statePatch={statePatch}
 				storePatch={storePatch}

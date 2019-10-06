@@ -26,18 +26,18 @@ const idSelector = createSelector(
 	(playlistId, { playing, deleting }) => ({
 		playlistId,
 		plItemId: playing,
-		deletingId: deleting
+		deletingIds: deleting
 	})
 );
 
 const optionsSelector = createSelector(
 	playlistSelector,
 	idSelector,
-	(playlists, { playlistId, plItemId, deletingId }) => {
+	(playlists, { playlistId, plItemId, deletingIds }) => {
 		const { title, items } = playlists.find(({ id }) => id === playlistId);
 		const curVidIdx = items.findIndex(item => item.playlistItemId === plItemId);
 		const video = items[curVidIdx];
-		return { title, items, playlistId, curVidIdx, video, deletingId };
+		return { title, items, playlistId, curVidIdx, video, deletingIds };
 	}
 );
 
@@ -63,7 +63,7 @@ export default function PlayerTab() {
 		autoDelete,
 		curVidIdx,
 		video,
-		deletingId
+		deletingIds
 	} = state;
 	const { playlistItemId, videoId } = video;
 
@@ -117,7 +117,7 @@ export default function PlayerTab() {
 					storePatch={storePatch}
 					curPlItemId={playlistItemId}
 					curVidIdx={curVidIdx}
-					deletingId={deletingId}
+					deletingIds={deletingIds}
 				/>
 			</Grid>
 		</Grid>

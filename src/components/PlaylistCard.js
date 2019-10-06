@@ -98,7 +98,7 @@ export default function PlaylistCard({
 	videoCount,
 	firstItemId,
 	isDeleting,
-	isUpdating,
+	currentlyUpdating,
 	updateProgress,
 	statePatch,
 	storePatch,
@@ -117,6 +117,8 @@ export default function PlaylistCard({
 	const dateUpdate = tags && tags.lastUpdate + 86400000;
 	const isUpdateAvail = tags && dateNow > dateUpdate;
 	const [isUpdateAvailable, setIsUpdateAvailable] = useState(isUpdateAvail);
+
+	const isUpdating = currentlyUpdating === id;
 
 	const delay = Math.floor(index / cardsPerLine);
 	const transitionDelay = `${150 * (onInitRender.current ? delay : 0)}ms`;
@@ -161,7 +163,12 @@ export default function PlaylistCard({
 								>
 									<IconButton
 										aria-label="Refresh"
-										disabled={!isUpdateAvailable || isUpdating || isDeleting}
+										disabled={
+											!isUpdateAvailable ||
+											!!currentlyUpdating ||
+											isUpdating ||
+											isDeleting
+										}
 										onClick={() => refreshPL(id, tags, title)}
 									>
 										{tags === null ? (
@@ -246,7 +253,7 @@ PlaylistCard.propTypes = {
 	videoCount: PropTypes.number.isRequired,
 	firstItemId: PropTypes.string.isRequired,
 	isDeleting: PropTypes.bool.isRequired,
-	isUpdating: PropTypes.bool.isRequired,
+	currentlyUpdating: PropTypes.string.isRequired,
 	updateProgress: PropTypes.number.isRequired,
 	statePatch: PropTypes.func.isRequired,
 	storePatch: PropTypes.func.isRequired,
