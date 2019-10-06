@@ -1,6 +1,7 @@
 import { SET_CURRENT_USER, LOGOUT_USER } from "../actionTypes";
 import { getPlaylists } from "./playlists";
 import { showSnackBar } from "./snacks";
+import { setTab } from "./ui";
 
 export const setCurrentUser = user => ({
 	type: SET_CURRENT_USER,
@@ -23,6 +24,8 @@ export function authUser(cb) {
 				tokenType: tokenDetails.token_type
 			};
 			dispatch(setCurrentUser(userData));
+			// send the user to their playlists
+			dispatch(setTab(1));
 			// grab the user's playlists (thunk)
 			dispatch(getPlaylists(userData.tokenAccess));
 		} catch (err) {
