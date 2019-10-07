@@ -44,5 +44,5 @@ PlayerListItems.propTypes = {
 	storePatch: PropTypes.func.isRequired,
 	curPlItemId: PropTypes.string.isRequired,
 	curVidIdx: PropTypes.number.isRequired,
-	deletingIds: PropTypes.string.isRequired
+	deletingIds: PropTypes.array.isRequired
 };
