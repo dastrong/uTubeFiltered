@@ -36,7 +36,8 @@ const optionsSelector = createSelector(
 	(playlists, { playlistId, plItemId, deletingIds }) => {
 		const { title, items } = playlists.find(({ id }) => id === playlistId);
 		const curVidIdx = items.findIndex(item => item.playlistItemId === plItemId);
-		const video = items[curVidIdx];
+		// if we can't find that video set the first video
+		const video = items[curVidIdx < 0 ? 0 : curVidIdx];
 		return { title, items, playlistId, curVidIdx, video, deletingIds };
 	}
 );
@@ -65,6 +66,13 @@ export default function PlayerTab() {
 		video,
 		deletingIds
 	} = state;
+
+	// if there are no videos found; redirect to playlists tab
+	if (!video) {
+		storePatch(setTab(1));
+		return <div>Video Not Found</div>;
+	}
+
 	const { playlistItemId, videoId } = video;
 
 	function onFinish() {
