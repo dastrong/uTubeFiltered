@@ -26,10 +26,8 @@ const useStyles = makeStyles(theme => ({
     zIndex: 111,
     height: 360,
     [theme.breakpoints.down("xs")]: {
-      height: "inherit",
-      marginTop: -10,
-      position: "sticky",
-      top: 0
+      height: 210,
+      marginTop: -10
     }
   },
   iFrameContainer: {
