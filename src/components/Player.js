@@ -7,6 +7,7 @@ import { Grid, CircularProgress } from "@material-ui/core/";
 
 const opts = {
   width: "100%",
+  height: "100%",
   playerVars: {
     autoplay: 1,
     iv_load_policy: 3,
@@ -23,7 +24,9 @@ const useStyles = makeStyles(theme => ({
     boxShadow: "inset 0px 0px 3px 0.5px rgba(101, 98, 98, 0.91)",
     backgroundColor: "white",
     zIndex: 111,
+    height: 360,
     [theme.breakpoints.down("xs")]: {
+      height: "inherit",
       marginTop: -10,
       position: "sticky",
       top: 0
@@ -31,7 +34,7 @@ const useStyles = makeStyles(theme => ({
   },
   iFrameContainer: {
     width: "100%",
-    height: 360,
+    height: "100%",
     transition: "opacity 0.45s",
     opacity: 0
   },
