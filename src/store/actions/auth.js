@@ -3,7 +3,7 @@ import { getPlaylists } from "./playlists";
 import { showSnackBar } from "./snacks";
 import { setTab } from "./ui";
 
-export const setCurrentUser = user => ({
+export const setCurrentUser = (user) => ({
   type: SET_CURRENT_USER,
   user
 });
@@ -11,14 +11,14 @@ export const setCurrentUser = user => ({
 export const logoutUser = () => ({ type: LOGOUT_USER });
 
 export function authUser(cb) {
-  return async dispatch => {
+  return async (dispatch) => {
     try {
-      const user = await cb();
-      const [userDetails, tokenDetails] = [user.Qt, user.uc];
+      const userDetails = await cb().getBasicProfile();
+      const tokenDetails = await cb().getAuthResponse();
       const userData = {
-        name: userDetails.Ad,
-        email: userDetails.zu,
-        image: userDetails.UK,
+        name: userDetails.getName(),
+        email: userDetails.getEmail(),
+        image: userDetails.getImageUrl(),
         tokenAccess: tokenDetails.access_token,
         tokenId: tokenDetails.id_token,
         tokenType: tokenDetails.token_type
@@ -36,7 +36,7 @@ export function authUser(cb) {
 }
 
 export function unAuthUser(cb) {
-  return async dispatch => {
+  return async (dispatch) => {
     try {
       localStorage.clear();
       await cb();
