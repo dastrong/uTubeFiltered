@@ -75,7 +75,6 @@ export function getPlaylistItems(token, playlistId) {
 export function updatePlaylistItems(token, playlistId, tags, title) {
   return async (dispatch) => {
     try {
-      console.info(token, playlistId, tags, title);
       // update ui to show we're processing the update
       dispatch(playlistUpdate(playlistId));
       // everything we need is kept in the playlist tags
