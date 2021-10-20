@@ -1,10 +1,5 @@
 import { GET_PLAYLIST_ITEMS, DELETE_PLAYLIST_ITEM } from "../actionTypes";
-import {
-  fetchURL,
-  apiRequest,
-  formTagParams,
-  description
-} from "../../util/helpers";
+import { fetchURL, apiRequest, createTagDescription } from "../../util/helpers";
 import { stripPlaylistItem } from "../../util/strippers";
 import { handleError } from "../../util/error";
 import { updatePlaylist } from "./playlists";
@@ -36,7 +31,7 @@ export const handleItemDelete = (playlistItemId, playlistId) => ({
 
 // THUNKS
 export function getPlaylistItems(token, playlistId) {
-  return async dispatch => {
+  return async (dispatch) => {
     try {
       // https://developers.google.com/youtube/v3/docs/playlistItems/list#parameters
       const itemParams = { playlistId, part: "snippet", maxResults: 50 };
@@ -48,13 +43,13 @@ export function getPlaylistItems(token, playlistId) {
         itemParams
       );
       // save the id(to delete) with it's videoId
-      const listItemIds = playlistItems.items.map(item => ({
+      const listItemIds = playlistItems.items.map((item) => ({
         id: item.id,
         videoId: item.snippet.resourceId.videoId
       }));
       // https://developers.google.com/youtube/v3/docs/videos/list#parameters
       const videoParams = {
-        id: listItemIds.map(item => item.videoId).join(),
+        id: listItemIds.map((item) => item.videoId).join(),
         part: "snippet,statistics"
       };
       // get extra details about each video
@@ -65,7 +60,7 @@ export function getPlaylistItems(token, playlistId) {
         videoParams
       );
       // array of video objects that are filtered down
-      const strippedItems = extraItemDetails.items.map(item => {
+      const strippedItems = extraItemDetails.items.map((item) => {
         const id = listItemIds.find(({ videoId }) => item.id === videoId).id;
         return stripPlaylistItem(item, id);
       });
@@ -78,8 +73,9 @@ export function getPlaylistItems(token, playlistId) {
 }
 
 export function updatePlaylistItems(token, playlistId, tags, title) {
-  return async dispatch => {
+  return async (dispatch) => {
     try {
+      console.info(token, playlistId, tags, title);
       // update ui to show we're processing the update
       dispatch(playlistUpdate(playlistId));
       // everything we need is kept in the playlist tags
@@ -103,7 +99,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
       };
       // https://developers.google.com/youtube/v3/docs/search/list#parameters
       const results = await Promise.all(
-        channels.map(async channelId => {
+        channels.map(async (channelId) => {
           return await apiRequest("GET", halfSearchURL, token, {
             channelId,
             ...params
@@ -112,7 +108,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
       );
       // separates the videoIds into their own array
       const videoIds = results
-        .map(({ items }) => items.map(item => item.id.videoId))
+        .map(({ items }) => items.map((item) => item.id.videoId))
         .reduce((acc, cVal) => [...acc, ...cVal]);
       dispatch(setNewVideoCount(videoIds.length));
       // will throw if an error happens
@@ -121,8 +117,8 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
       // we only pass the title during updates
       if (title) {
         // update the playlist lastUpdate tag
-        const newTags = formTagParams(channels, query);
-        const snippet = { title, description, tags: newTags };
+        const description = createTagDescription(channels, query);
+        const snippet = { title, description };
         // since we're updating a playlist we need to minus 1 from the playlist update badge
         dispatch(decrPlUpdBadge());
         dispatch(updatePlaylist(token, playlistId, snippet));
@@ -142,7 +138,7 @@ export function updatePlaylistItems(token, playlistId, tags, title) {
 }
 
 export function deletePlaylistItem(token, playlistItemId, playlistId) {
-  return async dispatch => {
+  return async (dispatch) => {
     try {
       dispatch(plItemDelete(playlistItemId));
       // https://developers.google.com/youtube/v3/docs/playlistItems/delete#parameters

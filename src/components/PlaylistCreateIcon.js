@@ -4,7 +4,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import { Zoom, Fab } from "@material-ui/core";
 import PlaylistIcon from "@material-ui/icons/PlaylistAdd";
 
-const useStyles = makeStyles(theme => ({
+const useStyles = makeStyles((theme) => ({
+  root: {},
   fab: {
     position: "absolute",
     right: 5,
@@ -12,6 +13,11 @@ const useStyles = makeStyles(theme => ({
     [theme.breakpoints.down("xs")]: {
       bottom: 53,
       position: "fixed"
+    },
+    boxShadow: "0px 3px 5px -1px rgb(0 0 0 / 20%)",
+
+    "&:active": {
+      boxShadow: "0px 3px 5px -1px rgb(0 0 0 / 20%)"
     }
   }
 }));
